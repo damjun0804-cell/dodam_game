@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🕵️‍♂️ 명탐정 코난: 사건 해결 관리자 대시보드</title>
+    <title>추리 게임 관리자 대시보드</title>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #161f30;
-            --card-border: #1e2d4a;
-            --accent-blue: #00a2ff;
-            --accent-red: #ff3366;
-            --accent-yellow: #f1c40f;
-            --text-main: #e2e8f0;
-            --text-sub: #94a3b8;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --primary-color: #1e293b;
+            --accent-blue: #2563eb;
+            --accent-red: #ef4444;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
         }
 
         body {
@@ -22,9 +22,6 @@
             color: var(--text-main);
             margin: 0;
             padding: 30px 20px;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 162, 255, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(255, 51, 102, 0.05) 0%, transparent 20%);
         }
 
         .container {
@@ -34,16 +31,15 @@
             padding: 35px;
             border-radius: 16px;
             border: 1px solid var(--card-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 162, 255, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
         }
 
         h1 {
             text-align: center;
-            color: #ffffff;
-            font-size: 2rem;
+            color: var(--primary-color);
+            font-size: 1.8rem;
             margin-bottom: 30px;
             letter-spacing: -0.5px;
-            text-shadow: 0 0 10px rgba(0, 162, 255, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -55,19 +51,18 @@
             padding: 20px;
             border: 1px solid var(--card-border);
             border-radius: 12px;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(5px);
+            background-color: #fafafa;
         }
 
         .section-title {
             font-weight: 700;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             margin-bottom: 15px;
-            color: var(--accent-blue);
+            color: var(--primary-color);
             display: flex;
             align-items: center;
             gap: 8px;
-            border-bottom: 1px solid rgba(0, 162, 255, 0.2);
+            border-bottom: 2px solid #e2e8f0;
             padding-bottom: 8px;
         }
 
@@ -83,19 +78,19 @@
             width: 100%;
             padding: 12px;
             margin-top: 6px;
-            background-color: #0b1120;
-            border: 1px solid #2a3b5c;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
-            color: #ffffff;
+            color: var(--text-main);
             box-sizing: border-box;
             font-size: 14px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
             outline: none;
             border-color: var(--accent-blue);
-            box-shadow: 0 0 8px rgba(0, 162, 255, 0.4);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         textarea {
@@ -117,18 +112,18 @@
 
         .btn-add {
             padding: 0 18px;
-            background: var(--accent-blue);
+            background: var(--primary-color);
             color: #fff;
             border: none;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
             white-space: nowrap;
         }
 
         .btn-add:hover {
-            background: #0081cc;
+            background: #334155;
         }
 
         .tag-container {
@@ -136,19 +131,19 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 10px;
-            min-height: 38px;
-            padding: 6px;
-            background: #0b1120;
-            border: 1px dashed #2a3b5c;
+            min-height: 40px;
+            padding: 8px;
+            background: #ffffff;
+            border: 1px dashed #cbd5e1;
             border-radius: 8px;
         }
 
         .tag {
             display: inline-flex;
             align-items: center;
-            background: rgba(255, 51, 102, 0.15);
-            color: #ff6688;
-            border: 1px solid rgba(255, 51, 102, 0.3);
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 13px;
@@ -163,7 +158,7 @@
         }
 
         .tag .remove-btn:hover {
-            color: #ffffff;
+            color: #7f1d1d;
         }
 
         /* 토글 스위치 디자인 */
@@ -176,7 +171,7 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 54px;
+            width: 52px;
             height: 28px;
         }
 
@@ -190,8 +185,8 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #2a3b5c;
-            transition: .4s;
+            background-color: #cbd5e1;
+            transition: .3s;
             border-radius: 34px;
         }
 
@@ -201,17 +196,16 @@
             height: 20px; width: 20px;
             left: 4px; bottom: 4px;
             background-color: white;
-            transition: .4s;
+            transition: .3s;
             border-radius: 50%;
         }
 
         input:checked + .slider {
-            background-color: var(--accent-red);
-            box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+            background-color: var(--accent-blue);
         }
 
         input:checked + .slider:before {
-            transform: translateX(26px);
+            transform: translateX(24px);
         }
 
         /* 용의자 카드 스타일 */
@@ -222,16 +216,16 @@
         }
 
         .suspect-box {
-            background: #0f172a;
+            background: #ffffff;
             padding: 15px;
-            border: 1px solid #1e293b;
-            border-left: 4px solid var(--accent-yellow);
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--accent-blue);
             border-radius: 8px;
         }
 
         .suspect-title {
-            font-weight: bold;
-            color: var(--accent-yellow);
+            font-weight: 700;
+            color: var(--primary-color);
             margin-bottom: 8px;
             display: block;
         }
@@ -246,41 +240,34 @@
             margin-top: 0;
         }
 
-        .suspect-inputs input:nth-child(3),
-        .suspect-inputs input:nth-child(4) {
-            grid-column: span 1;
-        }
-
         /* 메인 저장 버튼 */
         .btn-save {
             width: 100%;
             padding: 15px;
-            background: linear-gradient(135deg, #00a2ff, #0055ff);
+            background: var(--accent-blue);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(0, 162, 255, 0.3);
-            transition: all 0.3s ease;
+            transition: background 0.2s ease;
         }
 
         .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 162, 255, 0.5);
+            background: #1d4ed8;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🕵️‍♂️ 명탐정 코난: 추리 게임 본부</h1>
+    <h1>🕵️‍♂️ 추리 게임 사건 관리 본부</h1>
 
     <!-- GitHub 토큰 인증 섹션 -->
     <div class="section">
-        <div class="section-title">🔑 본부 인증 (GitHub Token)</div>
+        <div class="section-title">🔑 GitHub 인증 설정</div>
         <label for="githubToken">Personal Access Token (classic)</label>
         <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
         <small style="color: var(--text-sub); display: block; margin-top: 6px;">* 토큰은 브라우저(localStorage)에 임시 저장됩니다.</small>
@@ -288,7 +275,7 @@
 
     <!-- 게임 활성화 상태 -->
     <div class="section toggle-container">
-        <span class="section-title" style="margin-bottom:0; border:none;">🚨 사건 추리 가동 상태 (ON/OFF)</span>
+        <span class="section-title" style="margin-bottom:0; border:none;">🚨 사건 진행 상태 (ON/OFF)</span>
         <label class="switch">
             <input type="checkbox" id="isGameActive">
             <span class="slider"></span>
@@ -297,7 +284,7 @@
 
     <!-- 기본 단어 및 규칙 설정 -->
     <div class="section">
-        <div class="section-title">🎯 사건 핵심 암호 설정</div>
+        <div class="section-title">🎯 핵심 단어 및 가이드라인</div>
         
         <label for="targetWord">정답 단어 (Target Word)</label>
         <input type="text" id="targetWord" placeholder="예: 시계">
@@ -309,15 +296,14 @@
         </div>
         <div class="tag-container" id="tagContainer"></div>
 
-        <label for="systemInstruction" style="margin-top: 15px;">AI 지휘관 프로필 수칙 (Prompt Instruction)</label>
-        <textarea id="systemInstruction" placeholder="AI 행동 지침을 입력하세요."></textarea>
+        <label for="systemInstruction" style="margin-top: 15px;">AI 행동 지침 (Prompt Instruction)</label>
+        <textarea id="systemInstruction" placeholder="AI에게 전달할 기본 가이드라인을 입력하세요."></textarea>
     </div>
 
     <!-- 용의자 프로필 설정 (1~5명) -->
     <div class="section">
-        <div class="section-title">👥 용의자 5인 용의선상</div>
+        <div class="section-title">👥 용의자 프로필 설정 (5인)</div>
         <div class="suspect-grid">
-            <!-- 용의자 1~5 -->
             <script>
                 for(let i=1; i<=5; i++) {
                     document.write(`
@@ -336,7 +322,7 @@
         </div>
     </div>
 
-    <button class="btn-save" onclick="saveConfig()">💾 데이터 저장 및 현장 적용</button>
+    <button class="btn-save" onclick="saveConfig()">💾 데이터 저장 및 적용</button>
 </div>
 
 <script>
@@ -483,14 +469,14 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: "Update game config via Detective Conan Dashboard",
+                    message: "Update game config from Dashboard",
                     content: encodedContent,
                     sha: sha
                 })
             });
 
             if (putRes.ok) {
-                alert("🕵️‍♂️ 사건 설정 변경사항이 정상적으로 적용되었습니다!");
+                alert("✅ 설정이 정상적으로 저장되었습니다!");
             } else {
                 const errorData = await putRes.json();
                 alert("저장 실패: " + (errorData.message || putRes.statusText));
