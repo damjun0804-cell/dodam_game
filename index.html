@@ -98,7 +98,6 @@
             height: 90px;
         }
 
-        /* 금지어 태그 입출력 스타일 */
         .forbidden-input-group {
             display: flex;
             gap: 8px;
@@ -161,7 +160,6 @@
             color: #7f1d1d;
         }
 
-        /* 토글 스위치 디자인 */
         .toggle-container {
             display: flex;
             align-items: center;
@@ -208,7 +206,6 @@
             transform: translateX(24px);
         }
 
-        /* 용의자 카드 스타일 */
         .suspect-grid {
             display: flex;
             flex-direction: column;
@@ -240,7 +237,6 @@
             margin-top: 0;
         }
 
-        /* 메인 저장 버튼 */
         .btn-save {
             width: 100%;
             padding: 15px;
@@ -259,11 +255,9 @@
             background: #1d4ed8;
         }
     </style>
-    <!-- 카카오톡 및 SNS 공유용 Open Graph 메타 태그 -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="🕵️‍♂️ 추리 게임 사건 관리 본부">
     <meta property="og:description" content="스푼라디오 추리 게임 실시간 설정 및 용의자 관리 대시보드입니다.">
-    <!-- 썸네일로 사용할 이미지의 전체 URL 경로 (https:// 포함 필수) -->
     <meta property="og:image" content="https://damjun0804-cell.github.io/dodam_game/preview.jpg">
     <meta property="og:url" content="https://damjun0804-cell.github.io/dodam_game/index.html">
 </head>
@@ -272,15 +266,20 @@
 <div class="container">
     <h1>🕵️‍♂️ 추리 게임 사건 관리 본부</h1>
 
-    <!-- GitHub 토큰 인증 섹션 -->
+    <!-- GitHub 인증 및 인증 토큰 설정 섹션 -->
     <div class="section">
-        <div class="section-title">🔑 GitHub 인증 설정</div>
-        <label for="githubToken">Personal Access Token (classic)</label>
+        <div class="section-title">🔑 인증 설정</div>
+        
+        <label for="githubToken">GitHub Personal Access Token (classic)</label>
         <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
-        <small style="color: var(--text-sub); display: block; margin-top: 6px;">* 토큰은 브라우저(localStorage)에 임시 저장됩니다.</small>
+        <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 토큰은 브라우저(localStorage)에 저장됩니다.</small>
+
+        <label for="spoonAuthToken" style="margin-top: 15px;">SPOON Auth Token (Bearer ...)</label>
+        <input type="password" id="spoonAuthToken" placeholder="Bearer eyJraW... 스푼 인증 토큰을 입력하세요">
+        <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 스푼라디오 웹 로그인 후 개발자 도구 Network 탭에서 추출한 Authorization 토큰을 입력하세요.</small>
     </div>
 
-    <!-- 게임 활성화 상태 (기본값 ON) -->
+    <!-- 게임 활성화 상태 -->
     <div class="section toggle-container">
         <span class="section-title" style="margin-bottom:0; border:none;">🚨 사건 진행 상태 (ON/OFF)</span>
         <label class="switch">
@@ -307,7 +306,7 @@
         <textarea id="systemInstruction" placeholder="미입력 시 기본 가이드라인이 적용됩니다: 시청자 질문에 성격을 연기하며 단답으로 응답하세요."></textarea>
     </div>
 
-    <!-- 용의자 프로필 설정 (1~5명) -->
+    <!-- 용의자 프로필 설정 -->
     <div class="section">
         <div class="section-title">👥 용의자 프로필 설정 (5인)</div>
         <div class="suspect-grid">
@@ -358,7 +357,6 @@
     const REPO_NAME = "dodam_game";
     const FILE_PATH = "game_config.json";
 
-    // 미입력 시 적용될 기본 예시 데이터
     const DEFAULT_SYSTEM_INSTRUCTION = "당신은 사건 현장의 탐정 및 용의자 역할을 맡아 시청자의 질문에 유용한 힌트를 제공하거나 성격에 맞춰 연기해야 합니다. 정답과 금지어는 절대로 직접 언급하지 마세요.";
     
     const DEFAULT_SUSPECTS = {
@@ -371,7 +369,6 @@
 
     let forbiddenWordsList = [];
 
-    // 금지어 태그 관련 조작
     const forbiddenInput = document.getElementById("forbiddenInput");
     forbiddenInput.addEventListener("keypress", function(e) {
         if (e.key === "Enter") {
@@ -405,12 +402,11 @@
         });
     }
 
-    // 데이터 로드
     window.onload = async function() {
-        const savedToken = localStorage.getItem("dodam_github_token");
-        if (savedToken) {
-            document.getElementById("githubToken").value = savedToken;
-            loadRemoteConfig(savedToken);
+        const savedGithubToken = localStorage.getItem("dodam_github_token");
+        if (savedGithubToken) {
+            document.getElementById("githubToken").value = savedGithubToken;
+            loadRemoteConfig(savedGithubToken);
         }
     };
 
@@ -428,8 +424,8 @@
                 const content = decodeURIComponent(escape(atob(data.content)));
                 const config = JSON.parse(content);
 
-                // 저장된 활성화 여부가 존재하면 그 값을 따르고, 없으면 기본값 true (ON)
                 document.getElementById("isGameActive").checked = (config.is_game_active !== undefined) ? config.is_game_active : true;
+                document.getElementById("spoonAuthToken").value = config.spoon_auth_token || "";
                 document.getElementById("targetWord").value = config.target_word || "";
                 document.getElementById("systemInstruction").value = config.system_instruction || "";
 
@@ -453,21 +449,20 @@
         }
     }
 
-    // 데이터 저장
     async function saveConfig() {
-        const token = document.getElementById("githubToken").value.trim();
-        if (!token) {
+        const githubToken = document.getElementById("githubToken").value.trim();
+        const spoonAuthToken = document.getElementById("spoonAuthToken").value.trim();
+
+        if (!githubToken) {
             alert("GitHub Personal Access Token을 입력해주세요!");
             return;
         }
 
-        localStorage.setItem("dodam_github_token", token);
+        localStorage.setItem("dodam_github_token", githubToken);
 
-        // 행동 지침 미입력 시 기본 예시 데이터 적용
         const instructionVal = document.getElementById("systemInstruction").value.trim();
         const finalInstruction = instructionVal !== "" ? instructionVal : DEFAULT_SYSTEM_INSTRUCTION;
 
-        // 용의자 정보 미입력 시 기본 예시 데이터 적용
         const suspectsObj = {};
         for (let i = 1; i <= 5; i++) {
             const key = String(i);
@@ -486,6 +481,7 @@
 
         const updatedConfig = {
             is_game_active: document.getElementById("isGameActive").checked,
+            spoon_auth_token: spoonAuthToken,
             target_word: document.getElementById("targetWord").value.trim(),
             forbidden_words: forbiddenWordsList,
             system_instruction: finalInstruction,
@@ -495,13 +491,13 @@
         try {
             const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 headers: {
-                    "Authorization": `token ${token}`,
+                    "Authorization": `token ${githubToken}`,
                     "Accept": "application/vnd.github.v3+json"
                 }
             });
 
             if (getRes.status === 401) {
-                alert("인증 실패 (401 Unauthorized). 토큰 권한(repo) 및 스펠링을 재확인하세요.");
+                alert("인증 실패 (401 Unauthorized). GitHub 토큰 권한(repo) 및 스펠링을 재확인하세요.");
                 return;
             }
 
@@ -516,18 +512,18 @@
             const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 method: "PUT",
                 headers: {
-                    "Authorization": `token ${token}`,
+                    "Authorization": `token ${githubToken}`,
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: "Update game config with default fallback options",
+                    message: "Update game config including SPOON token",
                     content: encodedContent,
                     sha: sha
                 })
             });
 
             if (putRes.ok) {
-                alert("✅ 설정이 정상적으로 저장되었습니다!");
+                alert("✅ 설정 및 SPOON 인증 토큰이 정상적으로 저장되었습니다!");
             } else {
                 const errorData = await putRes.json();
                 alert("저장 실패: " + (errorData.message || putRes.statusText));
