@@ -268,7 +268,7 @@
 
     <!-- GitHub 인증 및 인증 토큰 설정 섹션 -->
     <div class="section">
-        <div class="section-title">🔑 인증 설정</div>
+        <div class="section-title">🔑 인증 및 연결 설정</div>
         
         <label for="githubToken">GitHub Personal Access Token (classic)</label>
         <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
@@ -277,6 +277,10 @@
         <label for="spoonAuthToken" style="margin-top: 15px;">SPOON Auth Token (Bearer ...)</label>
         <input type="password" id="spoonAuthToken" placeholder="Bearer eyJraW... 스푼 인증 토큰을 입력하세요">
         <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 스푼라디오 웹 로그인 후 개발자 도구 Network 탭에서 추출한 Authorization 토큰을 입력하세요.</small>
+
+        <label for="liveUrl" style="margin-top: 15px;">스푼라디오 방송 웹소켓 주소 (Live URL)</label>
+        <input type="text" id="liveUrl" placeholder="예: wss://kr-live.spooncast.net/api/v2/lives/라이브ID/sockets/">
+        <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 연결할 라이브 방송의 웹소켓 접속 주소를 입력하세요.</small>
     </div>
 
     <!-- 게임 활성화 상태 -->
@@ -426,6 +430,7 @@
 
                 document.getElementById("isGameActive").checked = (config.is_game_active !== undefined) ? config.is_game_active : true;
                 document.getElementById("spoonAuthToken").value = config.spoon_auth_token || "";
+                document.getElementById("liveUrl").value = config.live_url || "";
                 document.getElementById("targetWord").value = config.target_word || "";
                 document.getElementById("systemInstruction").value = config.system_instruction || "";
 
@@ -452,6 +457,7 @@
     async function saveConfig() {
         const githubToken = document.getElementById("githubToken").value.trim();
         const spoonAuthToken = document.getElementById("spoonAuthToken").value.trim();
+        const liveUrl = document.getElementById("liveUrl").value.trim();
 
         if (!githubToken) {
             alert("GitHub Personal Access Token을 입력해주세요!");
@@ -482,6 +488,7 @@
         const updatedConfig = {
             is_game_active: document.getElementById("isGameActive").checked,
             spoon_auth_token: spoonAuthToken,
+            live_url: liveUrl,
             target_word: document.getElementById("targetWord").value.trim(),
             forbidden_words: forbiddenWordsList,
             system_instruction: finalInstruction,
@@ -516,14 +523,14 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: "Update game config including SPOON token",
+                    message: "Update game config including live_url and token",
                     content: encodedContent,
                     sha: sha
                 })
             });
 
             if (putRes.ok) {
-                alert("✅ 설정 및 SPOON 인증 토큰이 정상적으로 저장되었습니다!");
+                alert("✅ 설정, 토큰 및 방송 링크가 정상적으로 저장되었습니다!");
             } else {
                 const errorData = await putRes.json();
                 alert("저장 실패: " + (errorData.message || putRes.statusText));
