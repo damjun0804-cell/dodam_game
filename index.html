@@ -3,204 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>추리 게임 관리자 대시보드</title>
+    <title>🕵️‍♂️ 명탐정 코난: 사건 해결 관리자 대시보드</title>
     <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #161f30;
+            --card-border: #1e2d4a;
+            --accent-blue: #00a2ff;
+            --accent-red: #ff3366;
+            --accent-yellow: #f1c40f;
+            --text-main: #e2e8f0;
+            --text-sub: #94a3b8;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 30px 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 162, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 51, 102, 0.05) 0%, transparent 20%);
         }
+
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 162, 255, 0.1);
         }
+
         h1 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 25px;
+            color: #ffffff;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 10px rgba(0, 162, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
+
         .section {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            background-color: #fafbfc;
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(5px);
         }
+
         .section-title {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            color: #34495e;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(0, 162, 255, 0.2);
+            padding-bottom: 8px;
         }
+
         label {
             display: block;
-            margin-top: 10px;
+            margin-top: 12px;
             font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-sub);
         }
+
         input[type="text"], input[type="password"], textarea {
             width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 12px;
+            margin-top: 6px;
+            background-color: #0b1120;
+            border: 1px solid #2a3b5c;
+            border-radius: 8px;
+            color: #ffffff;
             box-sizing: border-box;
             font-size: 14px;
+            transition: all 0.3s ease;
         }
+
+        input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 8px rgba(0, 162, 255, 0.4);
+        }
+
         textarea {
             resize: vertical;
-            height: 80px;
+            height: 90px;
         }
+
+        /* 금지어 태그 입출력 스타일 */
+        .forbidden-input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .forbidden-input-group input {
+            margin-top: 0;
+            flex: 1;
+        }
+
+        .btn-add {
+            padding: 0 18px;
+            background: var(--accent-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            background: #0081cc;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            min-height: 38px;
+            padding: 6px;
+            background: #0b1120;
+            border: 1px dashed #2a3b5c;
+            border-radius: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 51, 102, 0.15);
+            color: #ff6688;
+            border: 1px solid rgba(255, 51, 102, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .tag .remove-btn {
+            margin-left: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--accent-red);
+        }
+
+        .tag .remove-btn:hover {
+            color: #ffffff;
+        }
+
+        /* 토글 스위치 디자인 */
         .toggle-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 26px;
+            width: 54px;
+            height: 28px;
         }
+
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
+
         .slider {
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
+            background-color: #2a3b5c;
             transition: .4s;
             border-radius: 34px;
         }
+
         .slider:before {
             position: absolute;
             content: "";
             height: 20px; width: 20px;
-            left: 3px; bottom: 3px;
+            left: 4px; bottom: 4px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
+
         input:checked + .slider {
-            background-color: #27ae60;
+            background-color: var(--accent-red);
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
         }
+
         input:checked + .slider:before {
-            transform: translateX(24px);
+            transform: translateX(26px);
         }
-        button {
+
+        /* 용의자 카드 스타일 */
+        .suspect-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .suspect-box {
+            background: #0f172a;
+            padding: 15px;
+            border: 1px solid #1e293b;
+            border-left: 4px solid var(--accent-yellow);
+            border-radius: 8px;
+        }
+
+        .suspect-title {
+            font-weight: bold;
+            color: var(--accent-yellow);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .suspect-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .suspect-inputs input {
+            margin-top: 0;
+        }
+
+        .suspect-inputs input:nth-child(3),
+        .suspect-inputs input:nth-child(4) {
+            grid-column: span 1;
+        }
+
+        /* 메인 저장 버튼 */
+        .btn-save {
             width: 100%;
-            padding: 12px;
-            background-color: #2980b9;
+            padding: 15px;
+            background: linear-gradient(135deg, #00a2ff, #0055ff);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 162, 255, 0.3);
+            transition: all 0.3s ease;
         }
-        button:hover {
-            background-color: #1f6391;
-        }
-        .suspect-box {
-            background: #fff;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px dashed #cbd5e1;
-            border-radius: 6px;
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 162, 255, 0.5);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🔍 추리 게임 관리자 대시보드</h1>
+    <h1>🕵️‍♂️ 명탐정 코난: 추리 게임 본부</h1>
 
-    <!-- GitHub 토큰 입력 섹션 -->
+    <!-- GitHub 토큰 인증 섹션 -->
     <div class="section">
-        <div class="section-title">🔑 GitHub 인증 설정</div>
+        <div class="section-title">🔑 본부 인증 (GitHub Token)</div>
         <label for="githubToken">Personal Access Token (classic)</label>
         <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
-        <small style="color: #666; display: block; margin-top: 5px;">* 토큰은 브라우저(localStorage)에 임시 저장됩니다.</small>
+        <small style="color: var(--text-sub); display: block; margin-top: 6px;">* 토큰은 브라우저(localStorage)에 임시 저장됩니다.</small>
     </div>
 
     <!-- 게임 활성화 상태 -->
     <div class="section toggle-container">
-        <span class="section-title">게임 진행 상태 (ON/OFF)</span>
+        <span class="section-title" style="margin-bottom:0; border:none;">🚨 사건 추리 가동 상태 (ON/OFF)</span>
         <label class="switch">
             <input type="checkbox" id="isGameActive">
             <span class="slider"></span>
         </label>
     </div>
 
-    <!-- 기본 설정 -->
+    <!-- 기본 단어 및 규칙 설정 -->
     <div class="section">
-        <div class="section-title">📌 기본 단어 설정</div>
+        <div class="section-title">🎯 사건 핵심 암호 설정</div>
+        
         <label for="targetWord">정답 단어 (Target Word)</label>
         <input type="text" id="targetWord" placeholder="예: 시계">
 
-        <label for="forbiddenWords">금지어 (쉼표로 구분)</label>
-        <input type="text" id="forbiddenWords" placeholder="예: 시간, 분, 초, 태엽">
+        <label>금지어 (Enter키 또는 추가 버튼으로 등록)</label>
+        <div class="forbidden-input-group">
+            <input type="text" id="forbiddenInput" placeholder="금지할 단어 입력 후 Enter">
+            <button class="btn-add" onclick="addForbiddenWord()">추가</button>
+        </div>
+        <div class="tag-container" id="tagContainer"></div>
 
-        <label for="systemInstruction">AI 행동 지침 (Prompt Instruction)</label>
-        <textarea id="systemInstruction" placeholder="AI에게 전달할 기본 가이드라인을 입력하세요."></textarea>
+        <label for="systemInstruction" style="margin-top: 15px;">AI 지휘관 프로필 수칙 (Prompt Instruction)</label>
+        <textarea id="systemInstruction" placeholder="AI 행동 지침을 입력하세요."></textarea>
     </div>
 
-    <!-- 용의자 정보 (1~5명) -->
+    <!-- 용의자 프로필 설정 (1~5명) -->
     <div class="section">
-        <div class="section-title">👤 용의자 프로필 설정</div>
-        
-        <div class="suspect-box">
-            <strong>용의자 1</strong>
-            <input type="text" id="suspect1Name" placeholder="이름">
-            <input type="text" id="suspect1Personality" placeholder="성격">
-            <input type="text" id="suspect1Alibi" placeholder="알리바이">
-            <input type="text" id="suspect1Secret" placeholder="비밀">
-        </div>
-
-        <div class="suspect-box">
-            <strong>용의자 2</strong>
-            <input type="text" id="suspect2Name" placeholder="이름">
-            <input type="text" id="suspect2Personality" placeholder="성격">
-            <input type="text" id="suspect2Alibi" placeholder="알리바이">
-            <input type="text" id="suspect2Secret" placeholder="비밀">
-        </div>
-
-        <div class="suspect-box">
-            <strong>용의자 3</strong>
-            <input type="text" id="suspect3Name" placeholder="이름">
-            <input type="text" id="suspect3Personality" placeholder="성격">
-            <input type="text" id="suspect3Alibi" placeholder="알리바이">
-            <input type="text" id="suspect3Secret" placeholder="비밀">
-        </div>
-
-        <div class="suspect-box">
-            <strong>용의자 4</strong>
-            <input type="text" id="suspect4Name" placeholder="이름">
-            <input type="text" id="suspect4Personality" placeholder="성격">
-            <input type="text" id="suspect4Alibi" placeholder="알리바이">
-            <input type="text" id="suspect4Secret" placeholder="비밀">
-        </div>
-
-        <div class="suspect-box">
-            <strong>용의자 5</strong>
-            <input type="text" id="suspect5Name" placeholder="이름">
-            <input type="text" id="suspect5Personality" placeholder="성격">
-            <input type="text" id="suspect5Alibi" placeholder="알리바이">
-            <input type="text" id="suspect5Secret" placeholder="비밀">
+        <div class="section-title">👥 용의자 5인 용의선상</div>
+        <div class="suspect-grid">
+            <!-- 용의자 1~5 -->
+            <script>
+                for(let i=1; i<=5; i++) {
+                    document.write(`
+                        <div class="suspect-box">
+                            <span class="suspect-title">용의자 ${i}</span>
+                            <div class="suspect-inputs">
+                                <input type="text" id="suspect${i}Name" placeholder="이름">
+                                <input type="text" id="suspect${i}Personality" placeholder="성격">
+                                <input type="text" id="suspect${i}Alibi" placeholder="알리바이">
+                                <input type="text" id="suspect${i}Secret" placeholder="비밀">
+                            </div>
+                        </div>
+                    `);
+                }
+            </script>
         </div>
     </div>
 
-    <button onclick="saveConfig()">💾 설정 저장 및 적용</button>
+    <button class="btn-save" onclick="saveConfig()">💾 데이터 저장 및 현장 적용</button>
 </div>
 
 <script>
@@ -208,6 +344,43 @@
     const REPO_NAME = "dodam_game";
     const FILE_PATH = "game_config.json";
 
+    let forbiddenWordsList = [];
+
+    // 금지어 태그 관련 조작
+    const forbiddenInput = document.getElementById("forbiddenInput");
+    forbiddenInput.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addForbiddenWord();
+        }
+    });
+
+    function addForbiddenWord() {
+        const val = forbiddenInput.value.trim();
+        if (val && !forbiddenWordsList.includes(val)) {
+            forbiddenWordsList.push(val);
+            renderTags();
+            forbiddenInput.value = "";
+        }
+    }
+
+    function removeForbiddenWord(word) {
+        forbiddenWordsList = forbiddenWordsList.filter(item => item !== word);
+        renderTags();
+    }
+
+    function renderTags() {
+        const container = document.getElementById("tagContainer");
+        container.innerHTML = "";
+        forbiddenWordsList.forEach(word => {
+            const tag = document.createElement("div");
+            tag.className = "tag";
+            tag.innerHTML = `${word} <span class="remove-btn" onclick="removeForbiddenWord('${word}')">&times;</span>`;
+            container.appendChild(tag);
+        });
+    }
+
+    // 데이터 로드
     window.onload = async function() {
         const savedToken = localStorage.getItem("dodam_github_token");
         if (savedToken) {
@@ -232,8 +405,10 @@
 
                 document.getElementById("isGameActive").checked = config.is_game_active || false;
                 document.getElementById("targetWord").value = config.target_word || "";
-                document.getElementById("forbiddenWords").value = (config.forbidden_words || []).join(", ");
                 document.getElementById("systemInstruction").value = config.system_instruction || "";
+
+                forbiddenWordsList = config.forbidden_words || [];
+                renderTags();
 
                 if (config.suspects) {
                     for (let i = 1; i <= 5; i++) {
@@ -248,10 +423,11 @@
                 }
             }
         } catch (err) {
-            console.error("기존 설정 로드 실패:", err);
+            console.error("설정 데이터 불러오기 실패:", err);
         }
     }
 
+    // 데이터 저장
     async function saveConfig() {
         const token = document.getElementById("githubToken").value.trim();
         if (!token) {
@@ -260,11 +436,6 @@
         }
 
         localStorage.setItem("dodam_github_token", token);
-
-        const forbiddenArray = document.getElementById("forbiddenWords").value
-            .split(",")
-            .map(item => item.trim())
-            .filter(item => item !== "");
 
         const suspectsObj = {};
         for (let i = 1; i <= 5; i++) {
@@ -279,7 +450,7 @@
         const updatedConfig = {
             is_game_active: document.getElementById("isGameActive").checked,
             target_word: document.getElementById("targetWord").value.trim(),
-            forbidden_words: forbiddenArray,
+            forbidden_words: forbiddenWordsList,
             system_instruction: document.getElementById("systemInstruction").value,
             suspects: suspectsObj
         };
@@ -293,7 +464,7 @@
             });
 
             if (getRes.status === 401) {
-                alert("GitHub 토큰 인증 실패 (401 Unauthorized). 토큰 값과 권한(repo)을 재확인해주세요.");
+                alert("인증 실패 (401 Unauthorized). 토큰 권한(repo) 및 스펠링을 재확인하세요.");
                 return;
             }
 
@@ -312,21 +483,21 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: "Update game config from Web Dashboard",
+                    message: "Update game config via Detective Conan Dashboard",
                     content: encodedContent,
                     sha: sha
                 })
             });
 
             if (putRes.ok) {
-                alert("✅ 설정이 정상적으로 저장되었습니다!");
+                alert("🕵️‍♂️ 사건 설정 변경사항이 정상적으로 적용되었습니다!");
             } else {
                 const errorData = await putRes.json();
                 alert("저장 실패: " + (errorData.message || putRes.statusText));
             }
         } catch (err) {
             console.error("저장 오류:", err);
-            alert("저장 처리 중 오류가 발생했습니다: " + err.message);
+            alert("저장 처리 중 오류 발생: " + err.message);
         }
     }
 </script>
