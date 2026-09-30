@@ -1,363 +1,336 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>명탐정 코난 컨셉 AI 추리게임 대시보드</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
-  <style>
-    :root {
-      --conan-navy: #1b2a4a;
-      --conan-red: #dc2626;
-      --conan-yellow: #f59e0b;
-      --bg-paper: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --border-color: #cbd5e1;
-    }
-
-    body {
-      background-color: #f1f5f9;
-      background-image: 
-        radial-gradient(#cbd5e1 1px, transparent 1px),
-        linear-gradient(to right, rgba(27, 42, 74, 0.03) 1px, transparent 1px);
-      background-size: 24px 24px, 100% 100%;
-      color: var(--text-main);
-      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-    }
-
-    .header-card {
-      background: var(--conan-navy);
-      color: #ffffff;
-      border-radius: 1rem;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(27, 42, 74, 0.3);
-    }
-
-    .header-card::after {
-      content: '';
-      position: absolute;
-      top: -50px;
-      right: -50px;
-      width: 150px;
-      height: 150px;
-      border: 2px dashed rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    .card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    }
-
-    .card-header {
-      background-color: #ffffff;
-      border-bottom: 2px solid #e2e8f0;
-      border-top-left-radius: 0.75rem !important;
-      border-top-right-radius: 0.75rem !important;
-      color: var(--conan-navy);
-    }
-
-    .form-label {
-      color: var(--text-main);
-      font-weight: 700;
-      font-size: 0.925rem;
-    }
-
-    .form-control, .form-select {
-      background-color: #ffffff;
-      color: var(--text-main);
-      border: 1.5px solid var(--border-color);
-      border-radius: 0.5rem;
-      font-weight: 500;
-    }
-
-    .form-control:focus, .form-select:focus {
-      background-color: #ffffff;
-      color: var(--text-main);
-      border-color: var(--conan-navy);
-      box-shadow: 0 0 0 3px rgba(27, 42, 74, 0.15);
-    }
-
-    .form-control::placeholder {
-      color: #94a3b8;
-      font-weight: 400;
-    }
-
-    .suspect-card {
-      background-color: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-left: 4px solid var(--conan-navy);
-      border-radius: 0.5rem;
-    }
-
-    .badge-tag {
-      cursor: pointer;
-      font-weight: 600;
-      padding: 0.5em 0.8em;
-      border-radius: 0.375rem;
-      transition: all 0.2s ease;
-      background-color: #fee2e2 !important;
-      color: #991b1b !important;
-      border: 1px solid #fca5a5;
-    }
-
-    .badge-tag:hover {
-      background-color: var(--conan-red) !important;
-      color: #ffffff !important;
-      transform: translateY(-1px);
-    }
-
-    .btn-conan-primary {
-      background-color: var(--conan-navy);
-      color: #ffffff;
-      border: none;
-      font-weight: 600;
-    }
-
-    .btn-conan-primary:hover {
-      background-color: #0f172a;
-      color: #ffffff;
-    }
-
-    .btn-conan-accent {
-      background-color: var(--conan-red);
-      color: #ffffff;
-      border: none;
-      font-weight: 600;
-    }
-
-    .btn-conan-accent:hover {
-      background-color: #b91c1c;
-      color: #ffffff;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추리 게임 관리자 대시보드</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #fafbfc;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #27ae60;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #1f6391;
+        }
+        .suspect-box {
+            background: #fff;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container py-5" style="max-width: 960px;">
-    <!-- 헤더 -->
-    <div class="header-card p-4 mb-4">
-      <div class="d-flex align-items-center gap-3">
-        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-          <i class="bi bi-search fs-4"></i>
-        </div>
-        <div>
-          <h3 class="fw-bold mb-1 text-white"><i class="bi bi-journal-bookmark-fill me-2"></i>사건 수사본부 대시보드</h3>
-          <p class="mb-0 text-slate-200 opacity-90" style="font-size: 0.95rem;">진실은 언제나 하나! 실시간 방송 추리게임의 사건 정보와 용의자 프로필을 관리하세요.</p>
-        </div>
-      </div>
+
+<div class="container">
+    <h1>🔍 추리 게임 관리자 대시보드</h1>
+
+    <!-- 게임 활성화 상태 -->
+    <div class="section toggle-container">
+        <span class="section-title">게임 진행 상태 (ON/OFF)</span>
+        <label class="switch">
+            <input type="checkbox" id="isGameActive">
+            <span class="slider"></span>
+        </label>
     </div>
 
-    <!-- 1. 기본 설정 -->
-    <div class="card mb-4">
-      <div class="card-header py-3">
-        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-sliders me-2 text-danger"></i>1. 사건 기본 규칙 설정</h5>
-      </div>
-      <div class="card-body p-4">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">추리 게임 상태</label>
-            <select id="isGameActive" class="form-select">
-              <option value="true">🟢 진행 중 (Active)</option>
-              <option value="false">🔴 일시 정지 (Paused)</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">사건 정답 (Target Word)</label>
-            <input type="text" id="targetWord" class="form-control" placeholder="예: 바나나, 독약, 비밀열쇠">
-          </div>
-          <div class="col-12">
-            <label class="form-label">금지어 목록 (엔터 키로 추가)</label>
-            <div class="input-group mb-2">
-              <input type="text" id="forbiddenInput" class="form-control" placeholder="금지어 입력 후 엔터 (예: 노랑, 과일, 원숭이)">
-              <button class="btn btn-outline-secondary fw-semibold" type="button" onclick="addForbiddenWord()"><i class="bi bi-plus-lg"></i> 추가</button>
-            </div>
-            <div id="forbiddenTags" class="d-flex flex-wrap gap-2 pt-1"></div>
-          </div>
-          <div class="col-12">
-            <label class="form-label">AI 진행 지침 (System Instruction)</label>
-            <textarea id="systemInstruction" class="form-control" rows="2" placeholder="예: 시청자의 질문에 맞춰 용의자의 성격을 연기하며 1~2문장의 간결한 텍스트로 힌트나 대답을 작성하세요."></textarea>
-          </div>
+    <!-- 기본 설정 -->
+    <div class="section">
+        <div class="section-title">📌 기본 단어 설정</div>
+        <label for="targetWord">정답 단어 (Target Word)</label>
+        <input type="text" id="targetWord" placeholder="예: 시계">
+
+        <label for="forbiddenWords">금지어 (쉼표로 구분)</label>
+        <input type="text" id="forbiddenWords" placeholder="예: 시간, 분, 초, 태엽">
+
+        <label for="systemInstruction">AI 행동 지침 (Prompt Instruction)</label>
+        <textarea id="systemInstruction" placeholder="AI에게 전달할 기본 가이드라인을 입력하세요."></textarea>
+    </div>
+
+    <!-- 용의자 정보 -->
+    <div class="section">
+        <div class="section-title">👤 용의자 프로필 설정</div>
+        
+        <!-- 용의자 1 -->
+        <div class="suspect-box">
+            <strong>용의자 1</strong>
+            <input type="text" id="suspect1Name" placeholder="이름">
+            <input type="text" id="suspect1Personality" placeholder="성격">
+            <input type="text" id="suspect1Alibi" placeholder="알리바이">
+            <input type="text" id="suspect1Secret" placeholder="비밀">
         </div>
-      </div>
-    </div>
 
-    <!-- 2. 용의자 프로필 -->
-    <div class="card mb-4">
-      <div class="card-header py-3">
-        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-person-bounding-box me-2 text-primary"></i>2. 용의자 5명 수사 프로필</h5>
-      </div>
-      <div class="card-body p-4">
-        <div id="suspectsContainer" class="d-flex flex-column gap-3"></div>
-      </div>
-    </div>
-
-    <!-- 3. GitHub 연동 및 동기화 -->
-    <div class="card mb-4">
-      <div class="card-header py-3">
-        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-cloud-check-fill me-2 text-success"></i>3. 데이터 동기화</h5>
-      </div>
-      <div class="card-body p-4">
-        <p class="text-muted mb-3" style="font-size: 0.9rem;">
-          <i class="bi bi-shield-lock-fill text-warning me-1"></i> [GitHub에 바로 저장] 버튼을 누르면 설정된 Access Token으로 <code>game_config.json</code>이 업데이트됩니다.
-        </p>
-        <div class="d-flex gap-2">
-          <button class="btn btn-conan-primary px-4 py-2" onclick="saveToGitHub()"><i class="bi bi-github me-1"></i> GitHub에 바로 저장</button>
-          <button class="btn btn-outline-secondary px-4 py-2 fw-semibold" onclick="downloadJSON()"><i class="bi bi-download me-1"></i> game_config.json 수동 다운로드</button>
+        <!-- 용의자 2 -->
+        <div class="suspect-box">
+            <strong>용의자 2</strong>
+            <input type="text" id="suspect2Name" placeholder="이름">
+            <input type="text" id="suspect2Personality" placeholder="성격">
+            <input type="text" id="suspect2Alibi" placeholder="알리바이">
+            <input type="text" id="suspect2Secret" placeholder="비밀">
         </div>
-      </div>
+
+        <!-- 용의자 3 -->
+        <div class="suspect-box">
+            <strong>용의자 3</strong>
+            <input type="text" id="suspect3Name" placeholder="이름">
+            <input type="text" id="suspect3Personality" placeholder="성격">
+            <input type="text" id="suspect3Alibi" placeholder="알리바이">
+            <input type="text" id="suspect3Secret" placeholder="비밀">
+        </div>
     </div>
-  </div>
 
-  <script>
-    // GitHub PAT 고정 설정
-    const GITHUB_PAT = "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";
+    <!-- 인증 토큰 (기본값 설정됨) -->
+    <div class="section">
+        <div class="section-title">🔑 GitHub 설정</div>
+        <label for="githubToken">GitHub Access Token</label>
+        <input type="text" id="githubToken" value="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">
+    </div>
 
-    let forbiddenWords = [];
+    <button onclick="saveConfig()">💾 설정 저장 및 적용</button>
+</div>
 
-    function renderForbiddenTags() {
-      const container = document.getElementById("forbiddenTags");
-      container.innerHTML = "";
-      forbiddenWords.forEach((word, idx) => {
-        container.innerHTML += `<span class="badge badge-tag" onclick="removeForbiddenWord(${idx})">${word} <i class="bi bi-x-lg ms-1"></i></span>`;
-      });
-    }
+<script>
+    const REPO_OWNER = "damjun0804-cell";
+    const REPO_NAME = "dodam_game";
+    const FILE_PATH = "game_config.json";
 
-    function addForbiddenWord() {
-      const input = document.getElementById("forbiddenInput");
-      const val = input.value.trim();
-      if (val && !forbiddenWords.includes(val)) {
-        forbiddenWords.push(val);
-        input.value = "";
-        renderForbiddenTags();
-      }
-    }
+    // 페이지 로드 시 기존 JSON 로드
+    window.onload = async function() {
+        try {
+            const token = document.getElementById("githubToken").value.trim();
+            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Accept": "application/vnd.github.v3+json"
+                }
+            });
 
-    function removeForbiddenWord(idx) {
-      forbiddenWords.splice(idx, 1);
-      renderForbiddenTags();
-    }
+            if (res.ok) {
+                const data = await res.json();
+                // UTF-8 디코딩 처리
+                const content = decodeURIComponent(escape(atob(data.content)));
+                const config = JSON.parse(content);
 
-    function renderSuspects() {
-      const container = document.getElementById("suspectsContainer");
-      container.innerHTML = "";
-      
-      const placeholders = {
-        1: { name: "예: 집사", personality: "예: 정중하지만 질문이 날카로우면 신경질적임. '~입니다만' 체 사용.", alibi: "예: 밤 8시에 2층 서재에서 책상을 정리하고 있었음.", secret: "예: 서재 금고에서 돈을 훔치고 있었음." },
-        2: { name: "예: 화가", personality: "예: 몽상가 스타일, 알쏭달쏭하고 시적인 말투 사용.", alibi: "예: 사건 시각에 정원에서 달빛을 보며 그림을 그리고 있었음.", secret: "예: 정원에서 수상한 인물을 목격했음." },
-        3: { name: "예: 정원사", personality: "예: 무뚝뚝하고 말수가 적음. 사투리를 사용함.", alibi: "예: 온실에서 화분을 정리하고 있었음.", secret: "예: 피해자와 최근 돈 문제로 다퉜음." },
-        4: { name: "예: 주방장", personality: "예: 성격이 급하고 화를 잘 냄. 요리 자부심이 강함.", alibi: "예: 주방에서 저녁 식사 설거지를 하고 있었음.", secret: "예: 피해자의 음식에 약을 타려고 했음." },
-        5: { name: "예: 친척", personality: "예: 차갑고 이기적임. 유산에 관심이 많음.", alibi: "예: 응접실에서 혼자 포도주를 마시고 있었음.", secret: "예: 피해자의 유언장을 몰래 확인했었음." }
-      };
+                document.getElementById("isGameActive").checked = config.is_game_active || false;
+                document.getElementById("targetWord").value = config.target_word || "";
+                document.getElementById("forbiddenWords").value = (config.forbidden_words || []).join(", ");
+                document.getElementById("systemInstruction").value = config.system_instruction || "";
 
-      for (let i = 1; i <= 5; i++) {
-        const ph = placeholders[i];
-        const suspectNumber = String(i).padStart(2, '0');
-        container.innerHTML += `
-          <div class="suspect-card p-3">
-            <div class="d-flex align-items-center mb-2">
-              <span class="badge bg-dark me-2">용의자 ${suspectNumber}</span>
-              <span class="text-muted small fw-bold">SUSPECT PROFILE</span>
-            </div>
-            <div class="row g-2">
-              <div class="col-md-3">
-                <label class="form-label small text-muted mb-1">이름</label>
-                <input type="text" id="suspect_${i}_name" class="form-control" placeholder="${ph.name}">
-              </div>
-              <div class="col-md-9">
-                <label class="form-label small text-muted mb-1">성격 및 말투</label>
-                <input type="text" id="suspect_${i}_personality" class="form-control" placeholder="${ph.personality}">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small text-muted mb-1">사건 시각 알리바이</label>
-                <input type="text" id="suspect_${i}_alibi" class="form-control" placeholder="${ph.alibi}">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label small text-muted mb-1">숨겨진 비밀</label>
-                <input type="text" id="suspect_${i}_secret" class="form-control" placeholder="${ph.secret}">
-              </div>
-            </div>
-          </div>`;
-      }
-    }
+                if (config.suspects) {
+                    if (config.suspects["1"]) {
+                        document.getElementById("suspect1Name").value = config.suspects["1"].name || "";
+                        document.getElementById("suspect1Personality").value = config.suspects["1"].personality || "";
+                        document.getElementById("suspect1Alibi").value = config.suspects["1"].alibi || "";
+                        document.getElementById("suspect1Secret").value = config.suspects["1"].secret || "";
+                    }
+                    if (config.suspects["2"]) {
+                        document.getElementById("suspect2Name").value = config.suspects["2"].name || "";
+                        document.getElementById("suspect2Personality").value = config.suspects["2"].personality || "";
+                        document.getElementById("suspect2Alibi").value = config.suspects["2"].alibi || "";
+                        document.getElementById("suspect2Secret").value = config.suspects["2"].secret || "";
+                    }
+                    if (config.suspects["3"]) {
+                        document.getElementById("suspect3Name").value = config.suspects["3"].name || "";
+                        document.getElementById("suspect3Personality").value = config.suspects["3"].personality || "";
+                        document.getElementById("suspect3Alibi").value = config.suspects["3"].alibi || "";
+                        document.getElementById("suspect3Secret").value = config.suspects["3"].secret || "";
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("초기 설정 데이터 로드 오류:", err);
+        }
+    };
 
-    function buildConfigJSON() {
-      const suspects = {};
-      for (let i = 1; i <= 5; i++) {
-        suspects[i] = {
-          name: document.getElementById(`suspect_${i}_name`).value,
-          personality: document.getElementById(`suspect_${i}_personality`).value,
-          alibi: document.getElementById(`suspect_${i}_alibi`).value,
-          secret: document.getElementById(`suspect_${i}_secret`).value
-        };
-      }
-      return {
-        is_game_active: document.getElementById("isGameActive").value === "true",
-        target_word: document.getElementById("targetWord").value,
-        forbidden_words: forbiddenWords,
-        system_instruction: document.getElementById("systemInstruction").value,
-        suspects: suspects
-      };
-    }
-
-    function downloadJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(buildConfigJSON(), null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "game_config.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    async function saveToGitHub() {
-      const token = GITHUB_PAT;
-      const configData = buildConfigJSON();
-      const owner = "damjun0804-cell";
-      const repo = "dodam_game";
-      const path = "game_config.json";
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-
-      try {
-        let sha = "";
-        const getRes = await fetch(url, { headers: { "Authorization": `token ${token}` } });
-        if (getRes.ok) {
-          const getData = await getRes.json();
-          sha = getData.sha;
+    // 저장 버튼 클릭 시 GitHub API로 커밋
+    async function saveConfig() {
+        const token = document.getElementById("githubToken").value.trim();
+        if (!token) {
+            alert("GitHub Token을 입력해주세요!");
+            return;
         }
 
-        const body = {
-          message: "Update game_config.json via Conan Dashboard",
-          content: btoa(unescape(encodeURIComponent(JSON.stringify(configData, null, 2)))),
-          sha: sha || undefined
+        const forbiddenArray = document.getElementById("forbiddenWords").value
+            .split(",")
+            .map(item => item.trim())
+            .filter(item => item !== "");
+
+        const updatedConfig = {
+            is_game_active: document.getElementById("isGameActive").checked,
+            target_word: document.getElementById("targetWord").value.trim(),
+            forbidden_words: forbiddenArray,
+            system_instruction: document.getElementById("systemInstruction").value,
+            suspects: {
+                "1": {
+                    name: document.getElementById("suspect1Name").value.trim(),
+                    personality: document.getElementById("suspect1Personality").value.trim(),
+                    alibi: document.getElementById("suspect1Alibi").value.trim(),
+                    secret: document.getElementById("suspect1Secret").value.trim()
+                },
+                "2": {
+                    name: document.getElementById("suspect2Name").value.trim(),
+                    personality: document.getElementById("suspect2Personality").value.trim(),
+                    alibi: document.getElementById("suspect2Alibi").value.trim(),
+                    secret: document.getElementById("suspect2Secret").value.trim()
+                },
+                "3": {
+                    name: document.getElementById("suspect3Name").value.trim(),
+                    personality: document.getElementById("suspect3Personality").value.trim(),
+                    alibi: document.getElementById("suspect3Alibi").value.trim(),
+                    secret: document.getElementById("suspect3Secret").value.trim()
+                }
+            }
         };
 
-        const putRes = await fetch(url, {
-          method: "PUT",
-          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
+        try {
+            // 1. 기존 파일의 SHA 조회
+            const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Accept": "application/vnd.github.v3+json"
+                }
+            });
 
-        if (putRes.ok) alert("GitHub 저장 완료!");
-        else alert("저장 실패: " + putRes.statusText);
-      } catch (err) {
-        alert("오류 발생: " + err.message);
-      }
+            if (getRes.status === 401) {
+                alert("GitHub 토큰 인증에 실패했습니다 (401 Unauthorized).");
+                return;
+            }
+
+            let sha = "";
+            if (getRes.ok) {
+                const getData = await getRes.json();
+                sha = getData.sha;
+            }
+
+            // UTF-8 Base64 인코딩
+            const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(updatedConfig, null, 2))));
+
+            // 2. 파일 업데이트 요청 (PUT)
+            const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: "Update game config from Web Dashboard",
+                    content: encodedContent,
+                    sha: sha
+                })
+            });
+
+            if (putRes.ok) {
+                alert("✅ 설정이 정상적으로 GitHub에 저장되었습니다!");
+            } else {
+                const errorData = await putRes.json();
+                alert("저장 실패: " + (errorData.message || putRes.statusText));
+            }
+        } catch (err) {
+            console.error("저장 처리 오류:", err);
+            alert("저장 오류 발생: " + err.message);
+        }
     }
+</script>
 
-    document.getElementById("forbiddenInput").addEventListener("keypress", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); addForbiddenWord(); }
-    });
-
-    renderForbiddenTags();
-    renderSuspects();
-  </script>
 </body>
 </html>
