@@ -128,13 +128,7 @@
         <h5 class="card-title mb-0 fw-bold text-white"><i class="bi bi-cloud-arrow-up-fill me-2 text-success"></i>3. 설정 저장 및 동기화</h5>
       </div>
       <div class="card-body p-4">
-        <div class="mb-3">
-          <label class="form-label fw-semibold text-light">GitHub Personal Access Token (선택 사항)</label>
-          <input type="password" id="githubToken" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-          <div class="form-text text-slate-400 mt-2">
-            <i class="bi bi-info-circle"></i> 토큰을 입력하면 [GitHub에 저장] 클릭 시 저장소의 <code>game_config.json</code>이 즉시 업데이트됩니다.
-          </div>
-        </div>
+        <p class="text-slate-400 mb-3"><i class="bi bi-info-circle me-1"></i> [GitHub에 바로 저장] 버튼을 누르면 <code>game_config.json</code> 파일이 저장소에 즉시 업데이트됩니다.</p>
         <div class="d-flex gap-2">
           <button class="btn btn-primary px-4 py-2" onclick="saveToGitHub()"><i class="bi bi-github me-1"></i> GitHub에 바로 저장</button>
           <button class="btn btn-outline-light px-4 py-2" onclick="downloadJSON()"><i class="bi bi-download me-1"></i> game_config.json 수동 다운로드</button>
@@ -144,6 +138,9 @@
   </div>
 
   <script>
+    // GitHub PAT 고정 설정
+    const GITHUB_PAT = "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";
+
     let forbiddenWords = [];
 
     function renderForbiddenTags() {
@@ -234,9 +231,7 @@
     }
 
     async function saveToGitHub() {
-      const token = document.getElementById("githubToken").value.trim();
-      if (!token) return alert("GitHub Token을 입력해 주세요.");
-      
+      const token = GITHUB_PAT;
       const configData = buildConfigJSON();
       const owner = "damjun0804-cell";
       const repo = "dodam_game";
