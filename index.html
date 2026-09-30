@@ -326,10 +326,22 @@
                         <div class="suspect-box">
                             <span class="suspect-title">용의자 ${i}</span>
                             <div class="suspect-inputs">
-                                <input type="text" id="suspect${i}Name" placeholder="이름 (예: ${p.name})">
-                                <input type="text" id="suspect${i}Personality" placeholder="성격 (예: ${p.personality})">
-                                <input type="text" id="suspect${i}Alibi" placeholder="알리바이 (예: ${p.alibi})">
-                                <input type="text" id="suspect${i}Secret" placeholder="비밀 (예: ${p.secret})">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">이름</span>
+                                    <input type="text" id="suspect${i}Name" placeholder="예: ${p.name}">
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">성격</span>
+                                    <input type="text" id="suspect${i}Personality" placeholder="예: ${p.personality}">
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">알리바이</span>
+                                    <input type="text" id="suspect${i}Alibi" placeholder="예: ${p.alibi}">
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">비밀</span>
+                                    <input type="text" id="suspect${i}Secret" placeholder="예: ${p.secret}">
+                                </div>
                             </div>
                         </div>
                     `);
