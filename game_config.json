@@ -1,6 +1,7 @@
 {
   "is_game_active": true,
   "spoon_auth_token": "Bearer eyJraWQiOiJ3U2w3bm9kMHVSVDB0OVo3Y1d5ODJYUUxzU0FianM3SVFDckFkcmxUU21vIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOjc5MTc4NDksImRpZCI6Im1vemlsbGEvNS4wKHdpbmRvd3NudDEwLjA7d2luNjQ7eDY0KWFwcGxld2Via2l0LzUzNy4zNihraHRtbCxsaWtlZ2Vja28pY2hyb21lLzE1MC4wLjAuMHdoYWxlLzQuMzkuNDEwLjE0c2FmYXJpLzUzNy4zNiIsImNudHJ5Ijoia3IiLCJleHAiOjE3OTA3OTY3NjUsImdyYW50IjpbImF1dGgiXSwiaWF0IjoxNzkwNzgyMzY1fQ.ZKBDShEKzvCxDXG_T7oOGEkh0o-l7_EDKbslDsnE4bFt-E9OMtOKKWNSptajiA5fppjGJ6dxkAUNckr0qlGRsg8CGSBHhKKy21-jNbGNFoA89--le7LYavZ9dAk19QFQWsYlCiqQdIlWjJunYadorzt7MX2yyPKFXXyZEfQgaAGP3A7UVCzE0sFVy1dR3eHeMmKSAsiOp8oWkikFpFDFD5tBratNuzitt47Oac34pHnzQ_dhT8C8nqcJ7Z1dJoKn_Ot58Jg26gUVEzyWR2LrgnaH8W53iMSlpz2O-6PX6-jAyK2eknJYPAe5yVxYiSe4SjQ4WSb-z36QFjigl3xpTg",
+  "live_url": "https://www.spooncast.net/kr/live/@x9385l4?utm_source=spoon_share&utm_medium=referral&utm_campaign=live_share&utm_content=42962283&utm_term=10210435&ts=1790783323444",
   "target_word": "시계",
   "forbidden_words": [],
   "system_instruction": "당신은 사건 현장의 탐정 및 용의자 역할을 맡아 시청자의 질문에 유용한 힌트를 제공하거나 성격에 맞춰 연기해야 합니다. 정답과 금지어는 절대로 직접 언급하지 마세요.",
