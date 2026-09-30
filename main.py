@@ -172,14 +172,26 @@ def process_incoming_message(user_name: str, message: str) -> str:
 # ==========================================
 # 7. 스푼라디오 웹소켓 핸들러
 # ==========================================
+async def connect_spoon_websocket(websocket_url, headers):
+    """websockets 라이브러리 버전에 따라 인자를 동적으로 전달하여 연결"""
+    try:
+        # 최신 websockets 버전 (v10.0 이상)
+        return await websockets.connect(websocket_url, additional_headers=headers)
+    except TypeError:
+        try:
+            # 구버전 websockets 버전
+            return await websockets.connect(websocket_url, extra_headers=headers)
+        except TypeError:
+            # 두 키워드 모두 지원하지 않는 특수 환경 처리
+            return await websockets.connect(websocket_url)
+
 async def spoon_chat_handler():
     websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{SPOON_LIVE_ID}/sockets/"
     headers = {"Authorization": SPOON_AUTH_TOKEN, "User-Agent": "Mozilla/5.0"}
 
-    # websockets 패키지 호환성을 위한 구/신버전 파라미터 처리
-    connect_kwargs = {"headers": headers}
     try:
-        async with websockets.connect(websocket_url, **connect_kwargs) as ws:
+        ws = await connect_spoon_websocket(websocket_url, headers)
+        async with ws:
             print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
 
             while True:
@@ -201,30 +213,9 @@ async def spoon_chat_handler():
                     break
                 except Exception as e:
                     print(f"[ERROR] 메시지 처리 오류: {e}")
-    except TypeError:
-        # 구버전 websockets 호환 처리 (extra_headers)
-        async with websockets.connect(websocket_url, extra_headers=headers) as ws:
-            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
 
-            while True:
-                try:
-                    raw_data = await ws.recv()
-                    data = json.loads(raw_data)
-
-                    if data.get("event") == "live_message":
-                        user_name = data.get("user", {}).get("nickname", "시청자")
-                        message = data.get("message", "").strip()
-
-                        reply = process_incoming_message(user_name, message)
-                        if reply:
-                            send_packet = {"action": "send_message", "message": reply}
-                            await ws.send(json.dumps(send_packet))
-
-                except websockets.ConnectionClosed:
-                    print("[WARNING] 웹소켓 연결이 종료되었습니다.")
-                    break
-                except Exception as e:
-                    print(f"[ERROR] 메시지 처리 오류: {e}")
+    except Exception as e:
+        print(f"[ERROR] 웹소켓 연결 실패: {e}")
 
 # ==========================================
 # 8. 메인 실행 루프
