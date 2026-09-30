@@ -43,7 +43,7 @@
             margin-top: 10px;
             font-weight: 600;
         }
-        input[type="text"], textarea {
+        input[type="text"], input[type="password"], textarea {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -125,6 +125,14 @@
 <div class="container">
     <h1>🔍 추리 게임 관리자 대시보드</h1>
 
+    <!-- GitHub 토큰 입력 섹션 -->
+    <div class="section">
+        <div class="section-title">🔑 GitHub 인증 설정</div>
+        <label for="githubToken">Personal Access Token (classic)</label>
+        <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
+        <small style="color: #666; display: block; margin-top: 5px;">* 토큰은 브라우저(localStorage)에 안전하게 임시 저장됩니다.</small>
+    </div>
+
     <!-- 게임 활성화 상태 -->
     <div class="section toggle-container">
         <span class="section-title">게임 진행 상태 (ON/OFF)</span>
@@ -151,7 +159,6 @@
     <div class="section">
         <div class="section-title">👤 용의자 프로필 설정</div>
         
-        <!-- 용의자 1 -->
         <div class="suspect-box">
             <strong>용의자 1</strong>
             <input type="text" id="suspect1Name" placeholder="이름">
@@ -160,7 +167,6 @@
             <input type="text" id="suspect1Secret" placeholder="비밀">
         </div>
 
-        <!-- 용의자 2 -->
         <div class="suspect-box">
             <strong>용의자 2</strong>
             <input type="text" id="suspect2Name" placeholder="이름">
@@ -169,7 +175,6 @@
             <input type="text" id="suspect2Secret" placeholder="비밀">
         </div>
 
-        <!-- 용의자 3 -->
         <div class="suspect-box">
             <strong>용의자 3</strong>
             <input type="text" id="suspect3Name" placeholder="이름">
@@ -177,13 +182,6 @@
             <input type="text" id="suspect3Alibi" placeholder="알리바이">
             <input type="text" id="suspect3Secret" placeholder="비밀">
         </div>
-    </div>
-
-    <!-- 인증 토큰 (기본값 설정됨) -->
-    <div class="section">
-        <div class="section-title">🔑 GitHub 설정</div>
-        <label for="githubToken">GitHub Access Token</label>
-        <input type="text" id="githubToken" value="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">
     </div>
 
     <button onclick="saveConfig()">💾 설정 저장 및 적용</button>
@@ -194,10 +192,17 @@
     const REPO_NAME = "dodam_game";
     const FILE_PATH = "game_config.json";
 
-    // 페이지 로드 시 기존 JSON 로드
+    // 페이지 로드 시 localStorage에서 토큰 복원 및 기존 JSON 데이터 동기화
     window.onload = async function() {
+        const savedToken = localStorage.getItem("dodam_github_token");
+        if (savedToken) {
+            document.getElementById("githubToken").value = savedToken;
+            loadRemoteConfig(savedToken);
+        }
+    };
+
+    async function loadRemoteConfig(token) {
         try {
-            const token = document.getElementById("githubToken").value.trim();
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 headers: {
                     "Authorization": `token ${token}`,
@@ -207,7 +212,6 @@
 
             if (res.ok) {
                 const data = await res.json();
-                // UTF-8 디코딩 처리
                 const content = decodeURIComponent(escape(atob(data.content)));
                 const config = JSON.parse(content);
 
@@ -238,17 +242,19 @@
                 }
             }
         } catch (err) {
-            console.error("초기 설정 데이터 로드 오류:", err);
+            console.error("기존 설정 로드 실패:", err);
         }
-    };
+    }
 
-    // 저장 버튼 클릭 시 GitHub API로 커밋
     async function saveConfig() {
         const token = document.getElementById("githubToken").value.trim();
         if (!token) {
-            alert("GitHub Token을 입력해주세요!");
+            alert("GitHub Personal Access Token을 입력해주세요!");
             return;
         }
+
+        // 입력받은 토큰을 브라우저에 임시 저장
+        localStorage.setItem("dodam_github_token", token);
 
         const forbiddenArray = document.getElementById("forbiddenWords").value
             .split(",")
@@ -283,7 +289,6 @@
         };
 
         try {
-            // 1. 기존 파일의 SHA 조회
             const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 headers: {
                     "Authorization": `token ${token}`,
@@ -292,7 +297,7 @@
             });
 
             if (getRes.status === 401) {
-                alert("GitHub 토큰 인증에 실패했습니다 (401 Unauthorized).");
+                alert("GitHub 토큰 인증 실패 (401 Unauthorized). 토큰 값과 권한(repo)을 재확인해주세요.");
                 return;
             }
 
@@ -302,10 +307,8 @@
                 sha = getData.sha;
             }
 
-            // UTF-8 Base64 인코딩
             const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(updatedConfig, null, 2))));
 
-            // 2. 파일 업데이트 요청 (PUT)
             const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 method: "PUT",
                 headers: {
@@ -320,14 +323,14 @@
             });
 
             if (putRes.ok) {
-                alert("✅ 설정이 정상적으로 GitHub에 저장되었습니다!");
+                alert("✅ 설정이 정상적으로 저장되었습니다!");
             } else {
                 const errorData = await putRes.json();
                 alert("저장 실패: " + (errorData.message || putRes.statusText));
             }
         } catch (err) {
-            console.error("저장 처리 오류:", err);
-            alert("저장 오류 발생: " + err.message);
+            console.error("저장 오류:", err);
+            alert("저장 처리 중 오류가 발생했습니다: " + err.message);
         }
     }
 </script>
