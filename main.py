@@ -8,6 +8,9 @@ import google.generativeai as genai
 import firebase_admin
 from firebase_admin import credentials, firestore
 
+# ==========================================
+# 1. Firebase Admin SDK 설정 (Firestore 연동)
+# ==========================================
 FIREBASE_CONFIG = {
     "type": "service_account",
     "project_id": "chuli-game",
@@ -22,12 +25,16 @@ FIREBASE_CONFIG = {
     "universe_domain": "googleapis.com"
 }
 
+# Firestore 초기화
 cred = credentials.Certificate(FIREBASE_CONFIG)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
+# ==========================================
+# 2. 시스템 기본 정보 및 API 설정
+# ==========================================
 CONFIG_URL = "https://raw.githubusercontent.com/damjun0804-cell/dodam_game/refs/heads/main/game_config.json"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
+GEMINI_API_KEY = "AQ.Ab8RN6L5Kt-myAILHI6q8IBy2bYvDl049W-e8PPlMHwacNobEA"
 SPOON_AUTH_TOKEN = "Bearer eyJraWQiOiJ3U2w3bm9kMHVSVDB0OVo3Y1d5ODJYUUxzU0FianM3SVFDckFkcmxUU21vIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOjU3Mzg0MzMsImRpZCI6Im1vemlsbGEvNS4wKHdpbmRvd3NudDEwLjA7d2luNjQ7eDY0KWFwcGxld2Via2l0LzUzNy4zNihraHRtbCxsaWtlZ2Vja28pY2hyb21lLzE1MC4wLjAuMHdoYWxlLzQuMzkuNDEwLjE0c2FmYXJpLzUzNy4zNiIsImNudHJ5Ijoia3IiLCJleHAiOjE3OTA3NjQzOTYsImdyYW50IjpbImF1dGgiXSwiaWF0IjoxNzkwNzQ5OTk2fQ.NAn3V6qyC8q5motgAw1wUNWcIbkYKyFWE-A8eHpf_o2qSDTxKlWJBxZ0xzgECR3cQpTuZ6qGc20ge2WCQ5naPZ6z4JYdl5ClLtmVRKH70zFnYQTnBHyIiKsoaWsUo8WR5ZSEIkLCp_udZ5G8wpQgswt6B8GUKgd0B04yjfuuvkowSSpfR8QPCHgZ9hyeJM8RQ19xs1t4AwAxTatkfb5LcqOfImlNDukOxSqlD729rtygANFUPE67JSe2arD8IgvCPgmutKk_5o7At1kFDPfjHq1uUb2HdP9LlZ_yh0hLY3GR3N2gPKN8sWF3poA7PVR8y4F7FB2kIFUbtr38VfzwQw"
 SPOON_LIVE_ID = "6199801"
 
@@ -36,6 +43,9 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 
 current_config = {}
 
+# ==========================================
+# 3. Firestore 데이터베이스 처리
+# ==========================================
 def record_correct_answer(user_nickname: str):
     """정답자의 점수(성공 횟수)를 Firestore 'scores' 컬렉션에 누적 처리"""
     try:
@@ -70,6 +80,9 @@ def get_ranking() -> str:
         print(f"[DB ERROR] 순위 데이터 로드 실패: {e}")
         return "순위 데이터를 조회하는 중에 오류가 발생했습니다."
 
+# ==========================================
+# 4. GitHub Raw JSON 동기화
+# ==========================================
 def fetch_remote_config():
     global current_config
     try:
@@ -85,6 +98,9 @@ async def config_sync_loop():
         fetch_remote_config()
         await asyncio.sleep(5)
 
+# ==========================================
+# 5. Gemini 1.5 Flash AI 답변 생성
+# ==========================================
 def generate_ai_response(user_name: str, message: str) -> str:
     target_word = current_config.get("target_word", "")
     forbidden_words = current_config.get("forbidden_words", [])
@@ -124,31 +140,41 @@ def generate_ai_response(user_name: str, message: str) -> str:
         print(f"[ERROR] Gemini API 오류: {e}")
         return "AI 답변 생성 중 오류가 발생했습니다."
 
+# ==========================================
+# 6. 채팅 메시지 및 정답/명령어 처리
+# ==========================================
 def process_incoming_message(user_name: str, message: str) -> str:
     text = message.strip()
 
+    # 1. '!순위' 명령어 (게임 상태 상관없이 조회 가능)
     if text == "!순위":
         return get_ranking()
 
+    # 2. 게임 진행 상태 확인 (일시 정지 시 무시)
     if not current_config.get("is_game_active", False):
         return None
 
     target_word = current_config.get("target_word", "").strip()
 
+    # 3. '!정답 [단어]' 판정 로직
     if text.startswith("!정답"):
         user_answer = text[3:].strip()
         if not user_answer:
             return f"@{user_name}님, '!정답 [단어]' 입력 형식으로 제출해 주세요!"
 
+        # 공백 및 대소문자 무시 정답 판정
         if user_answer.replace(" ", "").lower() == target_word.replace(" ", "").lower():
+            # Firestore DB에 정답자 정보 저장
             record_correct_answer(user_name)
             
+            # 파이썬 봇 내부 상태를 즉시 일시 정지로 변경
             current_config["is_game_active"] = False
 
-            return f"🎉 축하합니다! @{user_name}님 정답입니다! (정답: {target_word})\n⏸️️ 정답자가 나와 추리게임이 일시 정지되었습니다."
+            return f"🎉 축하합니다! @{user_name}님 정답입니다! (정답: {target_word})\n⏸ 정답자가 나와 추리게임이 일시 정지되었습니다."
         else:
             return f"❌ @{user_name}님, 오답입니다! 다시 추리해보세요."
 
+    # 4. 일반 AI 질문 처리 ('!'로 시작하는 경우)
     if text.startswith("!"):
         query = text[1:].strip()
         ai_reply = generate_ai_response(user_name, query)
@@ -156,6 +182,9 @@ def process_incoming_message(user_name: str, message: str) -> str:
 
     return None
 
+# ==========================================
+# 7. 스푼라디오 웹소켓 핸들러
+# ==========================================
 async def spoon_chat_handler():
     websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{SPOON_LIVE_ID}/sockets/"
     headers = {"Authorization": SPOON_AUTH_TOKEN, "User-Agent": "Mozilla/5.0"}
@@ -183,6 +212,9 @@ async def spoon_chat_handler():
             except Exception as e:
                 print(f"[ERROR] 메시지 처리 오류: {e}")
 
+# ==========================================
+# 8. 메인 실행 루프
+# ==========================================
 async def main():
     fetch_remote_config()
     await asyncio.gather(
