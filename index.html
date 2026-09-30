@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>스푼라디오 AI 추리게임 대시보드</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #121212; color: #e0e0e0; }
+    .card { background-color: #1e1e1e; border: 1px solid #333; }
+    .form-control, .form-select { background-color: #2b2b2b; color: #fff; border: 1px solid #444; }
+    .form-control:focus, .form-select:focus { background-color: #333; color: #fff; border-color: #0d6efd; box-shadow: none; }
+    .badge-tag { cursor: pointer; margin-right: 5px; margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h2 class="mb-4 text-center fw-bold text-primary">🕵️ 스푼라디오 AI 추리게임 관리 대시보드</h2>
 
+    <!-- 게임 기본 설정 -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white fw-bold">1. 게임 기본 설정</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">게임 상태</label>
+          <select id="isGameActive" class="form-select">
+            <option value="true">진행 중 (Active)</option>
+            <option value="false">일시 정지 (Paused)</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">추리 정답 (Target Word)</label>
+          <input type="text" id="targetWord" class="form-control" value="바나나">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">금지어 목록 (엔터 키로 추가)</label>
+          <div class="input-group mb-2">
+            <input type="text" id="forbiddenInput" class="form-control" placeholder="금지어 입력 후 엔터">
+            <button class="btn btn-outline-secondary" type="button" onclick="addForbiddenWord()">추가</button>
+          </div>
+          <div id="forbiddenTags" class="d-flex flex-wrap"></div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">AI 진행 지침 (System Instruction)</label>
+          <textarea id="systemInstruction" class="form-control" rows="2">시청자의 질문에 맞춰 용의자의 성격을 연기하며 1~2문장의 간결한 텍스트로 힌트나 대답을 작성하세요.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 용의자 5명 설정 -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white fw-bold">2. 용의자 5명 프로필 설정</div>
+      <div class="card-body" id="suspectsContainer"></div>
+    </div>
+
+    <!-- GitHub 연동 및 다운로드 -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white fw-bold">3. 설정 저장 및 동기화</div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">GitHub Personal Access Token (선택 사항)</label>
+          <input type="password" id="githubToken" class="form-control" placeholder="ghp_xxxxxxxxxxxx">
+          <div class="form-text text-muted">토큰을 입력하면 [GitHub에 저장] 클릭 시 저장소의 game_config.json이 즉시 업데이트됩니다.</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" onclick="saveToGitHub()">💾 GitHub에 바로 저장</button>
+          <button class="btn btn-secondary" onclick="downloadJSON()">📥 game_config.json 수동 다운로드</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let forbiddenWords = ["노랑", "과일", "원숭이", "껍질", "바나나"];
+    const suspectsDefault = {
+      "1": { name: "집사", personality: "정중하지만 질문이 날카로우면 신경질적임. '~입니다만' 체 사용.", alibi: "밤 8시에 서재 정리 중이었음.", secret: "서재 금고에서 돈을 훔치고 있었음." },
+      "2": { name: "화가", personality: "몽상가 스타일, 알쏭달쏭한 말투 사용.", alibi: "정원에서 달빛을 보며 그림을 그리고 있었음.", secret: "정원에서 수상한 인물을 목격했음." },
+      "3": { name: "정원사", personality: "무뚝뚝하고 사투리를 사용함.", alibi: "온실에서 화분을 정리하고 있었음.", secret: "피해자와 최근 돈 문제로 다퉜음." },
+      "4": { name: "주방장", personality: "성격이 급하고 화를 잘 냄. 요리 자부심이 강함.", alibi: "주방에서 설거지를 하고 있었음.", secret: "피해자의 음식에 약을 타려고 했음." },
+      "5": { name: "친척", personality: "차갑고 이기적임. 유산에 관심이 많음.", alibi: "응접실에서 혼자 포도주를 마시고 있었음.", secret: "피해자의 유언장을 몰래 확인했었음." }
+    };
+
+    function renderForbiddenTags() {
+      const container = document.getElementById("forbiddenTags");
+      container.innerHTML = "";
+      forbiddenWords.forEach((word, idx) => {
+        container.innerHTML += `<span class="badge bg-danger badge-tag" onclick="removeForbiddenWord(${idx})">${word} ✖</span>`;
+      });
+    }
+
+    function addForbiddenWord() {
+      const input = document.getElementById("forbiddenInput");
+      const val = input.value.trim();
+      if (val && !forbiddenWords.includes(val)) {
+        forbiddenWords.push(val);
+        input.value = "";
+        renderForbiddenTags();
+      }
+    }
+
+    function removeForbiddenWord(idx) {
+      forbiddenWords.splice(idx, 1);
+      renderForbiddenTags();
+    }
+
+    function renderSuspects() {
+      const container = document.getElementById("suspectsContainer");
+      container.innerHTML = "";
+      for (let i = 1; i <= 5; i++) {
+        const s = suspectsDefault[i];
+        container.innerHTML += `
+          <div class="border border-secondary rounded p-3 mb-3">
+            <h5 class="text-info fw-bold">용의자 ${i}</h5>
+            <div class="row g-2">
+              <div class="col-md-3">
+                <input type="text" id="suspect_${i}_name" class="form-control" value="${s.name}" placeholder="이름">
+              </div>
+              <div class="col-md-9">
+                <input type="text" id="suspect_${i}_personality" class="form-control" value="${s.personality}" placeholder="성격 및 말투">
+              </div>
+              <div class="col-md-6">
+                <input type="text" id="suspect_${i}_alibi" class="form-control" value="${s.alibi}" placeholder="알리바이">
+              </div>
+              <div class="col-md-6">
+                <input type="text" id="suspect_${i}_secret" class="form-control" value="${s.secret}" placeholder="숨겨진 비밀">
+              </div>
+            </div>
+          </div>`;
+      }
+    }
+
+    function buildConfigJSON() {
+      const suspects = {};
+      for (let i = 1; i <= 5; i++) {
+        suspects[i] = {
+          name: document.getElementById(`suspect_${i}_name`).value,
+          personality: document.getElementById(`suspect_${i}_personality`).value,
+          alibi: document.getElementById(`suspect_${i}_alibi`).value,
+          secret: document.getElementById(`suspect_${i}_secret`).value
+        };
+      }
+      return {
+        is_game_active: document.getElementById("isGameActive").value === "true",
+        target_word: document.getElementById("targetWord").value,
+        forbidden_words: forbiddenWords,
+        system_instruction: document.getElementById("systemInstruction").value,
+        suspects: suspects
+      };
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(buildConfigJSON(), null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "game_config.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    async function saveToGitHub() {
+      const token = document.getElementById("githubToken").value.trim();
+      if (!token) return alert("GitHub Token을 입력해 주세요.");
+      
+      const configData = buildConfigJSON();
+      const owner = "damjun0804-cell";
+      const repo = "dodam_game";
+      const path = "game_config.json";
+      const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+      try {
+        let sha = "";
+        const getRes = await fetch(url, { headers: { "Authorization": `token ${token}` } });
+        if (getRes.ok) {
+          const getData = await getRes.json();
+          sha = getData.sha;
+        }
+
+        const body = {
+          message: "Update game_config.json via Dashboard",
+          content: btoa(unescape(encodeURIComponent(JSON.stringify(configData, null, 2)))),
+          sha: sha || undefined
+        };
+
+        const putRes = await fetch(url, {
+          method: "PUT",
+          headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (putRes.ok) alert("GitHub 저장 완료!");
+        else alert("저장 실패: " + putRes.statusText);
+      } catch (err) {
+        alert("오류 발생: " + err.message);
+      }
+    }
+
+    document.getElementById("forbiddenInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); addForbiddenWord(); }
+    });
+
+    renderForbiddenTags();
+    renderSuspects();
+  </script>
+</body>
+</html>
