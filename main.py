@@ -9,31 +9,60 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # ==========================================
-# 1. Firebase Admin SDK 설정
+# 1. Firebase Admin SDK 설정 (제공된 키 적용 완료)
 # ==========================================
-# 환경 변수에 FIREBASE_SERVICE_ACCOUNT_JSON 경로 또는 JSON 문자열이 지정된 경우 해당 정보 사용
 FIREBASE_KEY_PATH = os.getenv("FIREBASE_KEY_PATH", "serviceAccountKey.json")
 
 if not firebase_admin._apps:
     if os.path.exists(FIREBASE_KEY_PATH):
         cred = credentials.Certificate(FIREBASE_KEY_PATH)
         firebase_admin.initialize_app(cred)
+        print(f"[FIREBASE] '{FIREBASE_KEY_PATH}' 파일로부터 인증 정보를 로드했습니다.")
     else:
-        # 파일이 없을 시 기존 딕셔너리 구조 참조(환경 변수로 관리 권장)
+        # 제공해주신 실제 Firebase 서비스 계정 설정 적용
         FIREBASE_CONFIG = {
             "type": "service_account",
             "project_id": "chuli-game",
-            "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID", ""),
-            "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "").replace('\\n', '\n'),
-            "client_email": os.getenv("FIREBASE_CLIENT_EMAIL", ""),
-            "client_id": os.getenv("FIREBASE_CLIENT_ID", ""),
+            "private_key_id": "d8a64ee4d36cde3636ff87054288fa96fc68115c",
+            "private_key": """-----BEGIN PRIVATE KEY-----
+MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQCuHEIDgl0NikA7
+hTYd9lAvRA1kNN7nw/hQdJzh7c5dXSOxH7bHJaiJe5VJ8DldHaCXWM5BjVVhEbku
+4OBtiWwn1Hd6B+cxwXYdTcaHZ/WYV7k28pfya/GUB0qfNrgITeJ/4WV/fylrxWDp
+nY6mR8zLJdOWd06Mhg668kDW2gQbGpOKsLFL+QIan7qJrsxx+tlIeqDE8icvXLvK
+kkbWXu0bHw8XipPqTLH4cmxgjKZPbD4diZt1uktgodt/1Q9JlTDtJzpOuJjIjaXN
+iJ9PbnhrnYexHV9JVY3X2Y6KlVpEcY75kH8tybVMut4DT9ev+Dfgpzf7JDJWCmlD
+OuYO6TnTAgMBAAECggEAMzs1YXr2joljpR/pcJ+NsJrBpf64qFHNuz7U+tXSpz5E
+xlWinq7CDNJEd2EsP+371wzWhAtmWA2zA8w/vXt2S7IFBe9VZBqc+rpr9GPurEkD
+wttXQonop7oNhxO+yxK/1wknqIBuW7vUbGlkFCGEbTJQNDIe9tJrey7VTWMRWjfX
+WmyIJDgg6oClRs+5ja36k9Sm9oWdmNS9lPzHNX3E8TbU45kXspfY0K7Hb7deCBAi
+4mbronVXVWZ5yN2eEdbB7nxWtslDUxUmRR4vMeCOU8i028ppHcseXnIXfXscBfXk
+qKj8euW6/kioJUWUWunrjW9fWeAXCQKoXHIjr3qrQQKBgQDc9me0WI9XQexNSsXR
+2WxIQtFzN0dmedDCG50V3Ecv88apduWVIWDTq5Sfk9v+vLZvKFwKatzGHyWweemp
+tPFFRQsYNISvrSY9z3L8SedcmLrliRPkKLGZ+dye7rF7xZXrL2E6/2bNXEM0yUNg
+nnXfVFdSxiugiEkcIA8FNZIyf6QKBgQDJt/hz8LN2dDaJPLg6MTqBEVpx9V2YbRYB
+hPoFWdIk7TPjf24ZIItJFFG3yqKPQqh+edp9Utt6mWVznvbvEP3uB5vFqkQhp7DG
+HEr/ycrc5QFsaVxpp5EnFr809uyBLs8t7LtHUNHPFn4N09wD8VYVsrqQ75QKMlLX
+MnwyUX4SWwKBgQCI1qf+jeGnPhIjA61iee2PCqI/Yfp7wfDAZO1xPktvrN5Y0GL5
+agRW0alm8eCJ70BjsnDdmrRClcN3eOh1yrKoHUvzn4KUcPx/xtsE1pfLRmJoB+4j
+m/fwzUYNvvB3IDPpxBvIt6ZogzyzkfiB+sLdWXmwwb9kakFG+1xYm25jEQKBgQDE
+BXj1AeUDqS8N8el88zXNEtX3g97uLqOB2n00EfL6W19fJggRduSjoZE/rzSFTtt5
+/GPsAUazPrmtv75q1vJMCyy+yxTmN5S7D+d55dizC/90IHbjXSja+WnZyFJPvvMp
+nx7C+PrWELnFUcpqNYkqrT0GpcodD2V9TLAYwx6xhnQKBgQCS09ayWKV3OLJ3y1vY
+Ppmz96+bx0Lw3WkdgA6YVgY5jcWf129Bdn7lMvOAjeK9ePPsCbD0AOfPSq5xge2R
+MShyBpaLmLdgFaQaobdih8qtiV4Hu33PVTB2skMHuty8U3fXh/H+OzakJ+ltqSw7
+31Q+TggyWLj3ldMUfuylyLZ+Ng==
+-----END PRIVATE KEY-----""".replace('\\n', '\n'),
+            "client_email": "firebase-adminsdk-fbsvc@chuli-game.iam.gserviceaccount.com",
+            "client_id": "106013153900687003269",
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
             "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40chuli-game.iam.gserviceaccount.com",
             "universe_domain": "googleapis.com"
         }
         cred = credentials.Certificate(FIREBASE_CONFIG)
         firebase_admin.initialize_app(cred)
+        print("[FIREBASE] 내장된 서비스 계정 설정으로 인증을 완료했습니다.")
 
 db = firestore.client()
 
@@ -81,7 +110,7 @@ def get_ranking() -> str:
         return "순위 데이터를 조회하는 중에 오류가 발생했습니다."
 
 # ==========================================
-# 4. GitHub Raw JSON 실시간 동기화 (비동기 스레드 동기화)
+# 4. GitHub Raw JSON 실시간 동기화
 # ==========================================
 def _fetch_remote_config_sync():
     global current_config
@@ -196,7 +225,6 @@ async def spoon_chat_handler(live_id: str):
     websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{live_id}/sockets/"
 
     while True:
-        # GitHub 설정에서 최신 토큰 확인 -> 없으면 환경 변수 참조
         token = current_config.get("spoon_auth_token") or os.getenv("SPOON_AUTH_TOKEN", "")
         
         if not token:
@@ -216,7 +244,6 @@ async def spoon_chat_handler(live_id: str):
                 print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {live_id})")
 
                 while True:
-                    # 토큰이 중간에 업데이트된 경우 연결 재설정을 위해 확인
                     latest_token = current_config.get("spoon_auth_token") or os.getenv("SPOON_AUTH_TOKEN", "")
                     if latest_token and latest_token != token:
                         print(f"[INFO] SPOON_AUTH_TOKEN이 변경되었습니다. 웹소켓 재연결 진행 중...")
