@@ -1,1 +1,26 @@
-
+{
+  "is_game_active": false,
+  "target_word": "",
+  "forbidden_words": [],
+  "system_instruction": "",
+  "suspects": {
+    "1": {
+      "name": "",
+      "personality": "",
+      "alibi": "",
+      "secret": ""
+    },
+    "2": {
+      "name": "",
+      "personality": "",
+      "alibi": "",
+      "secret": ""
+    },
+    "3": {
+      "name": "",
+      "personality": "",
+      "alibi": "",
+      "secret": ""
+    }
+  }
+}
