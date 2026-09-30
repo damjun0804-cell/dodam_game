@@ -130,7 +130,7 @@
         <div class="section-title">🔑 GitHub 인증 설정</div>
         <label for="githubToken">Personal Access Token (classic)</label>
         <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
-        <small style="color: #666; display: block; margin-top: 5px;">* 토큰은 브라우저(localStorage)에 안전하게 임시 저장됩니다.</small>
+        <small style="color: #666; display: block; margin-top: 5px;">* 토큰은 브라우저(localStorage)에 임시 저장됩니다.</small>
     </div>
 
     <!-- 게임 활성화 상태 -->
@@ -155,7 +155,7 @@
         <textarea id="systemInstruction" placeholder="AI에게 전달할 기본 가이드라인을 입력하세요."></textarea>
     </div>
 
-    <!-- 용의자 정보 -->
+    <!-- 용의자 정보 (1~5명) -->
     <div class="section">
         <div class="section-title">👤 용의자 프로필 설정</div>
         
@@ -182,6 +182,22 @@
             <input type="text" id="suspect3Alibi" placeholder="알리바이">
             <input type="text" id="suspect3Secret" placeholder="비밀">
         </div>
+
+        <div class="suspect-box">
+            <strong>용의자 4</strong>
+            <input type="text" id="suspect4Name" placeholder="이름">
+            <input type="text" id="suspect4Personality" placeholder="성격">
+            <input type="text" id="suspect4Alibi" placeholder="알리바이">
+            <input type="text" id="suspect4Secret" placeholder="비밀">
+        </div>
+
+        <div class="suspect-box">
+            <strong>용의자 5</strong>
+            <input type="text" id="suspect5Name" placeholder="이름">
+            <input type="text" id="suspect5Personality" placeholder="성격">
+            <input type="text" id="suspect5Alibi" placeholder="알리바이">
+            <input type="text" id="suspect5Secret" placeholder="비밀">
+        </div>
     </div>
 
     <button onclick="saveConfig()">💾 설정 저장 및 적용</button>
@@ -192,7 +208,6 @@
     const REPO_NAME = "dodam_game";
     const FILE_PATH = "game_config.json";
 
-    // 페이지 로드 시 localStorage에서 토큰 복원 및 기존 JSON 데이터 동기화
     window.onload = async function() {
         const savedToken = localStorage.getItem("dodam_github_token");
         if (savedToken) {
@@ -221,23 +236,14 @@
                 document.getElementById("systemInstruction").value = config.system_instruction || "";
 
                 if (config.suspects) {
-                    if (config.suspects["1"]) {
-                        document.getElementById("suspect1Name").value = config.suspects["1"].name || "";
-                        document.getElementById("suspect1Personality").value = config.suspects["1"].personality || "";
-                        document.getElementById("suspect1Alibi").value = config.suspects["1"].alibi || "";
-                        document.getElementById("suspect1Secret").value = config.suspects["1"].secret || "";
-                    }
-                    if (config.suspects["2"]) {
-                        document.getElementById("suspect2Name").value = config.suspects["2"].name || "";
-                        document.getElementById("suspect2Personality").value = config.suspects["2"].personality || "";
-                        document.getElementById("suspect2Alibi").value = config.suspects["2"].alibi || "";
-                        document.getElementById("suspect2Secret").value = config.suspects["2"].secret || "";
-                    }
-                    if (config.suspects["3"]) {
-                        document.getElementById("suspect3Name").value = config.suspects["3"].name || "";
-                        document.getElementById("suspect3Personality").value = config.suspects["3"].personality || "";
-                        document.getElementById("suspect3Alibi").value = config.suspects["3"].alibi || "";
-                        document.getElementById("suspect3Secret").value = config.suspects["3"].secret || "";
+                    for (let i = 1; i <= 5; i++) {
+                        const key = String(i);
+                        if (config.suspects[key]) {
+                            document.getElementById(`suspect${i}Name`).value = config.suspects[key].name || "";
+                            document.getElementById(`suspect${i}Personality`).value = config.suspects[key].personality || "";
+                            document.getElementById(`suspect${i}Alibi`).value = config.suspects[key].alibi || "";
+                            document.getElementById(`suspect${i}Secret`).value = config.suspects[key].secret || "";
+                        }
                     }
                 }
             }
@@ -253,7 +259,6 @@
             return;
         }
 
-        // 입력받은 토큰을 브라우저에 임시 저장
         localStorage.setItem("dodam_github_token", token);
 
         const forbiddenArray = document.getElementById("forbiddenWords").value
@@ -261,31 +266,22 @@
             .map(item => item.trim())
             .filter(item => item !== "");
 
+        const suspectsObj = {};
+        for (let i = 1; i <= 5; i++) {
+            suspectsObj[String(i)] = {
+                name: document.getElementById(`suspect${i}Name`).value.trim(),
+                personality: document.getElementById(`suspect${i}Personality`).value.trim(),
+                alibi: document.getElementById(`suspect${i}Alibi`).value.trim(),
+                secret: document.getElementById(`suspect${i}Secret`).value.trim()
+            };
+        }
+
         const updatedConfig = {
             is_game_active: document.getElementById("isGameActive").checked,
             target_word: document.getElementById("targetWord").value.trim(),
             forbidden_words: forbiddenArray,
             system_instruction: document.getElementById("systemInstruction").value,
-            suspects: {
-                "1": {
-                    name: document.getElementById("suspect1Name").value.trim(),
-                    personality: document.getElementById("suspect1Personality").value.trim(),
-                    alibi: document.getElementById("suspect1Alibi").value.trim(),
-                    secret: document.getElementById("suspect1Secret").value.trim()
-                },
-                "2": {
-                    name: document.getElementById("suspect2Name").value.trim(),
-                    personality: document.getElementById("suspect2Personality").value.trim(),
-                    alibi: document.getElementById("suspect2Alibi").value.trim(),
-                    secret: document.getElementById("suspect2Secret").value.trim()
-                },
-                "3": {
-                    name: document.getElementById("suspect3Name").value.trim(),
-                    personality: document.getElementById("suspect3Personality").value.trim(),
-                    alibi: document.getElementById("suspect3Alibi").value.trim(),
-                    secret: document.getElementById("suspect3Secret").value.trim()
-                }
-            }
+            suspects: suspectsObj
         };
 
         try {
