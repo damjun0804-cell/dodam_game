@@ -37,7 +37,9 @@ db = firestore.client()
 CONFIG_URL = "https://raw.githubusercontent.com/damjun0804-cell/dodam_game/refs/heads/main/game_config.json"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6L5Kt-myAILHI6q8IBy2bYvDl049W-e8PPlMHwacNobEA")
 SPOON_AUTH_TOKEN = os.getenv("SPOON_AUTH_TOKEN", "Bearer eyJraWQiOiJ3U2w3bm9kMHVSVDB0OVo3Y1d5ODJYUUxzU0FianM3SVFDckFkcmxUU21vIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOjU3Mzg0MzMsImRpZCI6Im1vemlsbGEvNS4wKHdpbmRvd3NudDEwLjA7d2luNjQ7eDY0KWFwcGxld2Via2l0LzUzNy4zNihraHRtbCxsaWtlZ2Vja28pY2hyb21lLzE1MC4wLjAuMHdoYWxlLzQuMzkuNDEwLjE0c2FmYXJpLzUzNy4zNiIsImNudHJ5Ijoia3IiLCJleHAiOjE3OTA3NjQzOTYsImdyYW50IjpbImF1dGgiXSwiaWF0IjoxNzkwNzQ5OTk2fQ.NAn3V6qyC8q5motgAw1wUNWcIbkYKyFWE-A8eHpf_o2qSDTxKlWJBxZ0xzgECR3cQpTuZ6qGc20ge2WCQ5naPZ6z4JYdl5ClLtmVRKH70zFnYQTnBHyIiKsoaWsUo8WR5ZSEIkLCp_udZ5G8wpQgswt6B8GUKgd0B04yjfuuvkowSSpfR8QPCHgZ9hyeJM8RQ19xs1t4AwAxTatkfb5LcqOfImlNDukOxSqlD729rtygANFUPE67JSe2arD8IgvCPgmutKk_5o7At1kFDPfjHq1uUb2HdP9LlZ_yh0hLY3GR3N2gPKN8sWF3poA7PVR8y4F7FB2kIFUbtr38VfzwQw")
-SPOON_LIVE_ID = os.getenv("SPOON_LIVE_ID", "6199801")
+
+# 라이브 방송 ID 목록 (여러 방송 ID를 리스트에 추가)
+SPOON_LIVE_IDS = ["6199801", "42961606"]
 
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-1.5-flash")
@@ -173,26 +175,23 @@ def process_incoming_message(user_name: str, message: str) -> str:
 # 7. 스푼라디오 웹소켓 핸들러
 # ==========================================
 async def connect_spoon_websocket(websocket_url, headers):
-    """websockets 라이브러리 버전에 따라 인자를 동적으로 전달하여 연결"""
     try:
-        # 최신 websockets 버전 (v10.0 이상)
         return await websockets.connect(websocket_url, additional_headers=headers)
     except TypeError:
         try:
-            # 구버전 websockets 버전
             return await websockets.connect(websocket_url, extra_headers=headers)
         except TypeError:
-            # 두 키워드 모두 지원하지 않는 특수 환경 처리
             return await websockets.connect(websocket_url)
 
-async def spoon_chat_handler():
-    websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{SPOON_LIVE_ID}/sockets/"
+async def spoon_chat_handler(live_id: str):
+    """단일 Live ID를 전담하여 수신/발신하는 개별 비동기 루프"""
+    websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{live_id}/sockets/"
     headers = {"Authorization": SPOON_AUTH_TOKEN, "User-Agent": "Mozilla/5.0"}
 
     try:
         ws = await connect_spoon_websocket(websocket_url, headers)
         async with ws:
-            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
+            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {live_id})")
 
             while True:
                 try:
@@ -209,23 +208,26 @@ async def spoon_chat_handler():
                             await ws.send(json.dumps(send_packet))
 
                 except websockets.ConnectionClosed:
-                    print("[WARNING] 웹소켓 연결이 종료되었습니다.")
+                    print(f"[WARNING] 웹소켓 연결 종료 (LIVE ID: {live_id})")
                     break
                 except Exception as e:
-                    print(f"[ERROR] 메시지 처리 오류: {e}")
+                    print(f"[ERROR] 메시지 처리 오류 (LIVE ID: {live_id}): {e}")
 
     except Exception as e:
-        print(f"[ERROR] 웹소켓 연결 실패: {e}")
+        print(f"[ERROR] 웹소켓 연결 실패 (LIVE ID: {live_id}): {e}")
 
 # ==========================================
 # 8. 메인 실행 루프
 # ==========================================
 async def main_loop():
     fetch_remote_config()
-    await asyncio.gather(
-        config_sync_loop(),
-        spoon_chat_handler()
-    )
+    
+    # 여러 방송 ID에 대한 소켓 루프 작업 생성
+    tasks = [config_sync_loop()]
+    for live_id in SPOON_LIVE_IDS:
+        tasks.append(spoon_chat_handler(live_id))
+
+    await asyncio.gather(*tasks)
 
 if __name__ == "__main__":
     try:
