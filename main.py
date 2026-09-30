@@ -1,243 +1,255 @@
-import asyncio
+import time
 import json
-import os
-import urllib.request
-import websockets
-import google.generativeai as genai
+import requests
+from google import genai
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
-import firebase_admin
-from firebase_admin import credentials, firestore
+# 1. GitHub 설정 정보
+REPO_OWNER = "damjun0804-cell"
+REPO_NAME = "dodam_game"
+FILE_PATH = "game_config.json"
 
-# ==========================================
-# 1. Firebase Admin SDK 설정 (Firestore 연동)
-# ==========================================
-FIREBASE_CONFIG = {
-    "type": "service_account",
-    "project_id": "chuli-game",
-    "private_key_id": "61014cfc1498efa2889f1c09314f00aff1f62d6f",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDO2H56TOI16zhf\nattqfZJ2W/P8bPeeL9N4mXtRJ5ypSxb+jHZoY5EOsZ2j3BRxKgx1uw7GJBOHcQ9F\n8D7xCTyXH/m0aMfHLroclIFX1sIjhQtS59tAyA3uSnyMBJSuPFCy6dObaThgMVI0\nTxLj6/jLUHuQtoQAulBbH+671OVBqb01qVojbFnMEntbduQzBUC+d9H4evkLM2pq\nuLXBFvmMbLAmJrdC36mRtosxaYB93CF3MsoeO3ba0koAPDJZMgGDTudAAKR3SnEz\n7PkiVHLGUJctyiY19scJCMwrSeBuiSe94R2jBxkhcxPjyBJhA0pYDuuH8l9pb+pF\nKMMOPxEtAgMBAAECggEADHqc3XWwULlxVrcEfXRi9tdjAmUekUFoZtu3nV9K68nB\nyDdNg3cSTsp3bLsqfo30tNDwD2h+HHXn39EiiE8wLnE5kuFJauJjobVx54ySJ4DE\n0fUhUf4KcnMK+DWPNMMjHpAjJI/2Bz5NK9EOHjMOePxQ4BuqyL0fe509vWuW2Ihb\nGM4+OKIkRO8ZorMTmhHutpvQWmefuZHXWv2qGXFdjGugTQo+ueUcp6w0rt5Tx4xz\nzjWnNjLoOSpec2Ydiup7k4inm+IX2sY4uO+zDZdCMPAjCdtywhEjUttHGCVB0EDB\nVWjMOi0FNcu2IgBUVkyVYWGv7V0bpiewtVPURuvdoQKBgQDn6WvxzDq7AHFTZuGJ\nfLUgTaoZ1IeXlO3Pa2Ee0kF6il41iQAZsJsAAdvXpkv+DbzQDfvEQNo8Pf0zvw7H\nst9MV4ZRPhGcDIoTIyM6U0HaZqc6Akrn44SM2AGKZYnSkj45UY1fQ+zsBlz0YW3Y\nHEoPZjtod9cm1kJx6W2cDC/9sQKBgQDkVI85jtIUyBv3ZalfxkgiN/FjAVK7+hqY\ntbOceQHIqUFQFfHZz0VI9k3oKtienzM/f3VTYHl+HiX4aQvyL3IGOQfulFM2w1em\nUvnEVjZh1/6ow0P7Pi0d3WwX3UYdtlBgE4zSAJ6zH36LI0YD7SWuXqa4Hrnk6kiv\nA8I2vzr+PQKBgCdikvx7jLXZe2WIoWDyFuinh+3fFDAAEOsa92F+n7Qp75nz7Fpw\njcJQjn9vNJSuzJQg69MGmImGlYvGNMJhdF7Itnzxp5fy4TgizYbIQPTQXjIR1ZrQ\nHuC0hn50hBWI1JxzZyj4pjHnWr3+FeOP2lwHJqu1PorP9HTYCc9omnXhAoGBANba\nrw9lUlAV4SMSeafS6Cuy4qTcKOMTvJU4XbP+tewBQKFAlRz1CmhWxQaT0tSoT8wP\nfvKfFJPVgLtY9dHGTZCHd+xLjGY6uK6c48SZr4CwhER/weeYIVI5+i4WnJT26nkN\nzHQL+0nod+YrogWt0Mhc7prQ5vH+d7igW8+ycKutAoGAORW16BwRr6qnTQYB3Xg3\nuxLnoVkJtrdQE1wQKGrpCMEK4X8VUP/gC1xspbTen2TeurCDpIZtn6eYRmq8HaAt\nzJDtC3pQJnCQZkK86fB9lGxqaN1fEFzLlASVHJSCJmG60HokvOvBW3hvfL4XMHec\nYFh7ZxfZuoiGV7XhXK8ACcg=\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-fbsvc@chuli-game.iam.gserviceaccount.com",
-    "client_id": "106013153900687003269",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40chuli-game.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
+# 2. Gemini API 설정 (제공해주신 API 키 적용)
+GEMINI_API_KEY = "AQ.Ab8RN6L5Kt-myAILHI6q8IBy2bYvDl049W-e8PPlMHwacNobEA"
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+# 전역 설정 캐시 변수
+game_config = {
+    "is_game_active": True,
+    "target_word": "",
+    "forbidden_words": [],
+    "system_instruction": "",
+    "suspects": {}
 }
 
-if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_CONFIG)
-    firebase_admin.initialize_app(cred)
-
-db = firestore.client()
-
-# ==========================================
-# 2. 시스템 기본 정보 및 API 설정
-# ==========================================
-CONFIG_URL = "https://raw.githubusercontent.com/damjun0804-cell/dodam_game/refs/heads/main/game_config.json"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6L5Kt-myAILHI6q8IBy2bYvDl049W-e8PPlMHwacNobEA")
-SPOON_AUTH_TOKEN = os.getenv("SPOON_AUTH_TOKEN", "Bearer eyJraWQiOiJ3U2w3bm9kMHVSVDB0OVo3Y1d5ODJYUUxzU0FianM3SVFDckFkcmxUU21vIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOjU3Mzg0MzMsImRpZCI6Im1vemlsbGEvNS4wKHdpbmRvd3NudDEwLjA7d2luNjQ7eDY0KWFwcGxld2Via2l0LzUzNy4zNihraHRtbCxsaWtlZ2Vja28pY2hyb21lLzE1MC4wLjAuMHdoYWxlLzQuMzkuNDEwLjE0c2FmYXJpLzUzNy4zNiIsImNudHJ5Ijoia3IiLCJleHAiOjE3OTA3NjQzOTYsImdyYW50IjpbImF1dGgiXSwiaWF0IjoxNzkwNzQ5OTk2fQ.NAn3V6qyC8q5motgAw1wUNWcIbkYKyFWE-A8eHpf_o2qSDTxKlWJBxZ0xzgECR3cQpTuZ6qGc20ge2WCQ5naPZ6z4JYdl5ClLtmVRKH70zFnYQTnBHyIiKsoaWsUo8WR5ZSEIkLCp_udZ5G8wpQgswt6B8GUKgd0B04yjfuuvkowSSpfR8QPCHgZ9hyeJM8RQ19xs1t4AwAxTatkfb5LcqOfImlNDukOxSqlD729rtygANFUPE67JSe2arD8IgvCPgmutKk_5o7At1kFDPfjHq1uUb2HdP9LlZ_yh0hLY3GR3N2gPKN8sWF3poA7PVR8y4F7FB2kIFUbtr38VfzwQw")
-SPOON_LIVE_ID = os.getenv("SPOON_LIVE_ID", "6199801")
-
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
-
-current_config = {}
-
-# ==========================================
-# 3. Firestore 데이터베이스 처리
-# ==========================================
-def record_correct_answer(user_nickname: str):
+def load_config_from_github():
+    """GitHub에 저장된 game_config.json 파일을 실시간으로 불러옵니다."""
+    global game_config
+    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
+    headers = {
+        "Accept": "application/vnd.github.v3+json"
+    }
     try:
-        doc_ref = db.collection("scores").document(user_nickname)
-        doc = doc_ref.get()
-        if doc.exists:
-            current_score = doc.to_dict().get("score", 0)
-            doc_ref.update({"score": current_score + 1})
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            import base64
+            file_content = base64.b64decode(data['content']).decode('utf-8')
+            game_config = json.loads(file_content)
+            print("[Config] 설정 파일을 성공적으로 불러왔습니다.")
         else:
-            doc_ref.set({"score": 1})
-        print(f"[DB SUCCESS] '{user_nickname}' 님 점수 업데이트 완료")
+            print(f"[Config] 설정 불러오기 실패 (상태 코드: {response.status_code})")
     except Exception as e:
-        print(f"[DB ERROR] 점수 저장 실패: {e}")
+        print(f"[Config] 설정 불러오기 중 오류 발생: {e}")
 
-def get_ranking() -> str:
+def save_winner(username, nickname):
+    # 정답자 기록 로직
+    pass
+
+def get_ranking_text():
+    return "현재 순위 정보입니다."
+
+def get_gemini_ai_answer(question, config):
+    """Gemini AI를 사용하여 JSON 설정 규칙과 용의자 정보를 바탕으로 답변을 생성합니다."""
+    target_word = config.get("target_word", "")
+    forbidden_words = config.get("forbidden_words", [])
+    instruction = config.get("system_instruction", "당신은 추리 게임의 AI 캐릭터입니다.")
+    suspects = config.get("suspects", {})
+
+    # 금지어 체크
+    for fw in forbidden_words:
+        if fw in question:
+            return f"⚠️ 금지어('{fw}')가 포함되어 있어 답변할 수 없습니다!"
+
+    # 정답 직접 언급 체크
+    if target_word and target_word in question:
+        return "🤫 정답을 직접 유도하거나 물어보실 수 없습니다!"
+
     try:
-        docs = db.collection("scores").order_by("score", direction=firestore.Query.DESCENDING).limit(10).stream()
-        rank_list = [(doc.id, doc.to_dict().get("score", 0)) for doc in docs]
-
-        if not rank_list:
-            return "📊 현재까지 정답을 맞힌 명탐정이 없습니다."
-
-        rank_text = "🏆 [명탐정 정답 누적 순위표] 🏆\n"
-        for idx, (nickname, count) in enumerate(rank_list, 1):
-            rank_text += f"{idx}위: {nickname} ({count}회 성공)\n"
-        return rank_text.strip()
-    except Exception as e:
-        print(f"[DB ERROR] 순위 데이터 로드 실패: {e}")
-        return "순위 데이터를 조회하는 중에 오류가 발생했습니다."
-
-# ==========================================
-# 4. GitHub Raw JSON 실시간 동기화
-# ==========================================
-def fetch_remote_config():
-    global current_config
-    try:
-        req = urllib.request.Request(CONFIG_URL, headers={'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache'})
-        with urllib.request.urlopen(req) as response:
-            current_config = json.loads(response.read().decode('utf-8'))
-            print("[INFO] GitHub 설정 실시간 동기화 완료")
-    except Exception as e:
-        print(f"[ERROR] GitHub 설정 로드 실패: {e}")
-
-async def config_sync_loop():
-    while True:
-        fetch_remote_config()
-        await asyncio.sleep(5)
-
-# ==========================================
-# 5. Gemini 1.5 Flash AI 답변 생성
-# ==========================================
-def generate_ai_response(user_name: str, message: str) -> str:
-    target_word = current_config.get("target_word", "")
-    forbidden_words = current_config.get("forbidden_words", [])
-    system_instruction = current_config.get("system_instruction", "")
-    suspects = current_config.get("suspects", {})
-
-    target_suspect = None
-    for key, suspect in suspects.items():
-        if f"용의자{key}" in message or (suspect.get("name") and suspect.get("name") in message):
-            target_suspect = suspect
-            break
-
-    if target_suspect:
+        # Gemini에게 전달할 프롬프트 구성
         prompt = f"""
-        [역할] 당신은 추리게임 용의자 '{target_suspect.get('name')}'입니다.
-        [프로필] 성격: {target_suspect.get('personality')}, 알리바이: {target_suspect.get('alibi')}, 비밀: {target_suspect.get('secret')}
-        [규칙] 정답: {target_word}, 금지어: {', '.join(forbidden_words)}, 지침: {system_instruction}
-        [질문] 시청자 '{user_name}': "{message}"
-        [응답] 성격을 연기하여 1~2문장으로 답하세요. 정답 및 금지어는 절대 말하지 마세요.
-        """
-    else:
-        prompt = f"""
-        [역할] 당신은 추리게임 진행자 AI입니다.
-        [규칙] 정답: {target_word}, 금지어: {', '.join(forbidden_words)}, 지침: {system_instruction}
-        [질문] 시청자 '{user_name}': "{message}"
-        [응답] 1~2문장의 유용한 힌트를 제공하세요. 정답 및 금지어 언급 금지.
-        """
+[시스템 지침]
+{instruction}
 
-    try:
-        response = model.generate_content(prompt)
+[게임 설정 및 용의자 정보]
+- 정답 단어(비밀): {target_word}
+- 용의자 정보: {json.dumps(suspects, ensure_ascii=False)}
+
+[청취자 질문]
+{question}
+
+위 지침과 정보를 바탕으로 청취자의 질문에 대해 흥미로운 추리 힌트나 캐릭터 답변을 1~2문장으로 짧게 작성해줘.
+"""
+
+        # Gemini 모델 호출 (최신 별칭 적용)
+        response = client.models.generate_content(
+            model='gemini-flash-latest',
+            contents=prompt,
+        )
+        
         answer = response.text.strip()
-        for word in forbidden_words:
-            if word and word in answer:
-                return "AI가 답변 중 금지어를 감지하여 답변을 취소했습니다."
         return answer
     except Exception as e:
-        print(f"[ERROR] Gemini API 오류: {e}")
-        return "AI 답변 생성 중 오류가 발생했습니다."
+        print(f"[AI Error] Gemini 답변 생성 중 오류 발생: {e}")
+        return "죄송합니다. 잠시 후 다시 시도해주세요."
 
-# ==========================================
-# 6. 채팅 메시지 및 정답/명령어 처리
-# ==========================================
-def process_incoming_message(user_name: str, message: str) -> str:
-    text = message.strip()
-
-    if text == "!순위":
-        return get_ranking()
-
-    if not current_config.get("is_game_active", False):
-        return None
-
-    target_word = current_config.get("target_word", "").strip()
-
-    if text.startswith("!정답"):
-        user_answer = text[3:].strip()
-        if not user_answer:
-            return f"@{user_name}님, '!정답 [단어]' 입력 형식으로 제출해 주세요!"
-
-        if user_answer.replace(" ", "").lower() == target_word.replace(" ", "").lower():
-            record_correct_answer(user_name)
-            current_config["is_game_active"] = False
-            return f"🎉 축하합니다! @{user_name}님 정답입니다! (정답: {target_word})\n⏸ 정답자가 나와 추리게임이 일시 정지되었습니다."
-        else:
-            return f"❌ @{user_name}님, 오답입니다! 다시 추리해보세요."
-
-    if text.startswith("!"):
-        query = text[1:].strip()
-        ai_reply = generate_ai_response(user_name, query)
-        return f"🤖 @{user_name}: {ai_reply}"
-
-    return None
-
-# ==========================================
-# 7. 스푼라디오 웹소켓 핸들러
-# ==========================================
-async def spoon_chat_handler():
-    websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{SPOON_LIVE_ID}/sockets/"
-    headers = {"Authorization": SPOON_AUTH_TOKEN, "User-Agent": "Mozilla/5.0"}
-
-    # websockets 패키지 호환성을 위한 구/신버전 파라미터 처리
-    connect_kwargs = {"headers": headers}
+def send_chat_message(driver, message):
+    """스푼라디오 실제 채팅 입력창(textarea)에 메시지를 입력하고 전송합니다."""
     try:
-        async with websockets.connect(websocket_url, **connect_kwargs) as ws:
-            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
-
-            while True:
-                try:
-                    raw_data = await ws.recv()
-                    data = json.loads(raw_data)
-
-                    if data.get("event") == "live_message":
-                        user_name = data.get("user", {}).get("nickname", "시청자")
-                        message = data.get("message", "").strip()
-
-                        reply = process_incoming_message(user_name, message)
-                        if reply:
-                            send_packet = {"action": "send_message", "message": reply}
-                            await ws.send(json.dumps(send_packet))
-
-                except websockets.ConnectionClosed:
-                    print("[WARNING] 웹소켓 연결이 종료되었습니다.")
+        selectors = [
+            "textarea.sc-dhTHNW",
+            ".chat-input-area textarea",
+            "textarea[placeholder='대화를 입력하세요.']"
+        ]
+        
+        input_box = None
+        for selector in selectors:
+            try:
+                elements = driver.find_elements(By.CSS_SELECTOR, selector)
+                for elem in elements:
+                    if elem.is_displayed():
+                        input_box = elem
+                        break
+                if input_box:
                     break
-                except Exception as e:
-                    print(f"[ERROR] 메시지 처리 오류: {e}")
-    except TypeError:
-        # 구버전 websockets 호환 처리 (extra_headers)
-        async with websockets.connect(websocket_url, extra_headers=headers) as ws:
-            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
+            except:
+                continue
+                
+        if not input_box:
+            print("[Bot] 채팅 입력창(textarea)을 찾지 못했습니다.")
+            return
 
-            while True:
-                try:
-                    raw_data = await ws.recv()
-                    data = json.loads(raw_data)
+        input_box.click()
+        input_box.clear()
+        input_box.send_keys(message)
+        
+        # 1. 엔터 키 전송 시도
+        input_box.send_keys(Keys.RETURN)
+        
+        # 2. 전송 버튼 클릭 추가 시도
+        try:
+            send_btn = driver.find_element(By.CSS_SELECTOR, ".chat-input-area button")
+            send_btn.click()
+        except:
+            pass
 
-                    if data.get("event") == "live_message":
-                        user_name = data.get("user", {}).get("nickname", "시청자")
-                        message = data.get("message", "").strip()
+        print(f"[Bot] 채팅 전송 완료: {message}")
+    except Exception as e:
+        print(f"[Bot] 채팅 전송 중 오류 발생: {e}")
 
-                        reply = process_incoming_message(user_name, message)
-                        if reply:
-                            send_packet = {"action": "send_message", "message": reply}
-                            await ws.send(json.dumps(send_packet))
+def run_browser_bot():
+    driver = webdriver.Chrome()
+    
+    try:
+        driver.get("https://www.spooncast.net/")
+        print("[Bot] 브라우저가 실행되었습니다. 방송 페이지로 이동 후 로그인을 완료해주세요.")
+        
+        time.sleep(15)
 
-                except websockets.ConnectionClosed:
-                    print("[WARNING] 웹소켓 연결이 종료되었습니다.")
-                    break
-                except Exception as e:
-                    print(f"[ERROR] 메시지 처리 오류: {e}")
+        print("[Bot] 실시간 채팅 모니터링을 시작합니다...")
+        
+        processed_messages = set()
+        last_config_load_time = 0
 
-# ==========================================
-# 8. 메인 실행 루프
-# ==========================================
-async def main_loop():
-    fetch_remote_config()
-    await asyncio.gather(
-        config_sync_loop(),
-        spoon_chat_handler()
-    )
+        while True:
+            current_time = time.time()
+            
+            # 30초마다 GitHub에서 최신 설정 동기화
+            if current_time - last_config_load_time > 30:
+                load_config_from_github()
+                last_config_load_time = current_time
+
+            # 게임이 OFF 상태라면 채팅 감지를 건너뜀
+            if not game_config.get("is_game_active", True):
+                time.sleep(2)
+                continue
+
+            try:
+                chat_elements = driver.find_elements(By.CSS_SELECTOR, ".live-detail-comment-list li[data-comment-type='message'], .live-detail-comment-list li[data-comment-type='combo']")
+
+                for elem in chat_elements:
+                    full_text = elem.text.strip()
+                    if not full_text:
+                        continue
+                    
+                    user_name = ""
+                    content = ""
+                    
+                    try:
+                        name_elements = elem.find_elements(By.CSS_SELECTOR, ".comment-name .name .text-box")
+                        if name_elements:
+                            user_name = name_elements[0].text.strip()
+                        
+                        if not user_name:
+                            thumb_elements = elem.find_elements(By.CSS_SELECTOR, "button.thumbnail")
+                            if thumb_elements:
+                                user_name = thumb_elements[0].get_attribute("title").strip()
+
+                        content_elements = elem.find_elements(By.CSS_SELECTOR, ".comment-text pre")
+                        if content_elements:
+                            content = content_elements[0].text.strip()
+                        else:
+                            lines = full_text.split("\n")
+                            content = lines[-1].strip()
+
+                    except Exception:
+                        continue
+
+                    if not user_name or not content:
+                        continue
+
+                    message_key = f"{user_name}:{content}"
+                    
+                    if message_key in processed_messages:
+                        continue
+                    
+                    processed_messages.add(message_key)
+
+                    if len(processed_messages) > 500:
+                        processed_messages.clear()
+
+                    print(f"[Chat 수신] {user_name}: {content}")
+
+                    # 1. '!정답' 명령어 처리
+                    if content.startswith("!정답"):
+                        guess = content.replace("!정답", "").strip()
+                        target_word = game_config.get("target_word", "")
+                        
+                        if target_word and guess == target_word:
+                            save_winner(user_name, user_name)
+                            print(f"[Game] 🏆 정답자 탄생! ({user_name})")
+                        else:
+                            print(f"[Game] 오답입니다: {user_name} (입력값: {guess})")
+
+                    # 2. '!순위' 명령어 처리
+                    elif content.startswith("!순위"):
+                        ranking_msg = get_ranking_text()
+                        print(f"[Game 순위 출력]: {ranking_msg}")
+
+                    # 3. '!테스트' 명령어 처리 (하도담바보 전송)
+                    elif content.startswith("!테스트"):
+                        send_chat_message(driver, "하도담바보")
+
+                    # 4. '!'로 시작하는 일반 추리 질문 처리 -> Gemini AI 연동 및 스푼 채팅창 전송
+                    elif content.startswith("!") and not content.startswith("!정답") and not content.startswith("!순위") and not content.startswith("!테스트"):
+                        question = content[1:] # '!'를 제외한 질문 텍스트
+                        ai_reply = get_gemini_ai_answer(question, game_config)
+                        print(f"[Gemini AI 답변 생성]: {ai_reply}")
+                        
+                        if ai_reply:
+                            send_chat_message(driver, ai_reply)
+
+                time.sleep(0.3)
+
+            except Exception as loop_err:
+                print(f"[루프 내 오류 발생]: {loop_err}")
+                time.sleep(3)
+
+    finally:
+        driver.quit()
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main_loop())
-    except KeyboardInterrupt:
-        print("\n[INFO] 추리 게임 봇이 종료되었습니다.")
+    load_config_from_github()
+    run_browser_bot()
