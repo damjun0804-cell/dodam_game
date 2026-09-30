@@ -4,7 +4,6 @@ import os
 import urllib.request
 import websockets
 
-# 최신 구글 GenAI SDK 사용
 from google import genai
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -12,23 +11,29 @@ from firebase_admin import credentials, firestore
 # ==========================================
 # 1. Firebase Admin SDK 설정
 # ==========================================
-FIREBASE_CONFIG = {
-    "type": "service_account",
-    "project_id": "chuli-game",
-    "private_key_id": "61014cfc1498efa2889f1c09314f00aff1f62d6f",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDO2H56TOI16zhf\nattqfZJ2W/P8bPeeL9N4mXtRJ5ypSxb+jHZoY5EOsZ2j3BRxKgx1uw7GJBOHcQ9F\n8D7xCTyXH/m0aMfHLroclIFX1sIjhQtS59tAyA3uSnyMBJSuPFCy6dObaThgMVI0\nTxLj6/jLUHuQtoQAulBbH+671OVBqb01qVojbFnMEntbduQzBUC+d9H4evkLM2pq\nuLXBFvmMbLAmJrdC36mRtosxaYB93CF3MsoeO3ba0koAPDJZMgGDTudAAKR3SnEz\n7PkiVHLGUJctyiY19scJCMwrSeBuiSe94R2jBxkhcxPjyBJhA0pYDuuH8l9pb+pF\nKMMOPxEtAgMBAAECggEADHqc3XWwULlxVrcEfXRi9tdjAmUekUFoZtu3nV9K68nB\nyDdNg3cSTsp3bLsqfo30tNDwD2h+HHXn39EiiE8wLnE5kuFJauJjobVx54ySJ4DE\n0fUhUf4KcnMK+DWPNMMjHpAjJI/2Bz5NK9EOHjMOePxQ4BuqyL0fe509vWuW2Ihb\nGM4+OKIkRO8ZorMTmhHutpvQWmefuZHXWv2qGXFdjGugTQo+ueUcp6w0rt5Tx4xz\nzjWnNjLoOSpec2Ydiup7k4inm+IX2sY4uO+zDZdCMPAjCdtywhEjUttHGCVB0EDB\nVWjMOi0FNcu2IgBUVkyVYWGv7V0bpiewtVPURuvdoQKBgQDn6WvxzDq7AHFTZuGJ\nfLUgTaoZ1IeXlO3Pa2Ee0kF6il41iQAZsJsAAdvXpkv+DbzQDfvEQNo8Pf0zvw7H\nst9MV4ZRPhGcDIoTIyM6U0HaZqc6Akrn44SM2AGKZYnSkj45UY1fQ+zsBlz0YW3Y\nHEoPZjtod9cm1kJx6W2cDC/9sQKBgQDkVI85jtIUyBv3ZalfxkgiN/FjAVK7+hqY\ntbOceQHIqUFQFfHZz0VI9k3oKtienzM/f3VTYHl+HiX4aQvyL3IGOQfulFM2w1em\nUvnEVjZh1/6ow0P7Pi0d3WwX3UYdtlBgE4zSAJ6zH36LI0YD7SWuXqa4Hrnk6kiv\nA8I2vzr+PQKBgCdikvx7jLXZe2WIoWDyFuinh+3fFDAAEOsa92F+n7Qp75nz7Fpw\njcJQjn9vNJSuzJQg69MGmImGlYvGNMJhdF7Itnzxp5fy4TgizYbIQPTQXjIR1ZrQ\nHuC0hn50hBWI1JxzZyj4pjHnWr3+FeOP2lwHJqu1PorP9HTYCc9omnXhAoGBANba\nrw9lUlAV4SMSeafS6Cuy4qTcKOMTvJU4XbP+tewBQKFAlRz1CmhWxQaT0tSoT8wP\nfvKfFJPVgLtY9dHGTZCHd+xLjGY6uK6c48SZr4CwhER/weeYIVI5+i4WnJT26nkN\nzHQL+0nod+YrogWt0Mhc7prQ5vH+d7igW8+ycKutAoGAORW16BwRr6qnTQYB3Xg3\nuxLnoVkJtrdQE1wQKGrpCMEK4X8VUP/gC1xspbTen2TeurCDpIZtn6eYRmq8HaAt\nzJDtC3pQJnCQZkK86fB9lGxqaN1fEFzLlASVHJSCJmG60HokvOvBW3hvfL4XMHec\nYFh7ZxfZuoiGV7XhXK8ACcg=\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-fbsvc@chuli-game.iam.gserviceaccount.com",
-    "client_id": "106013153900687003269",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40chuli-game.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-}
+# 환경 변수에 FIREBASE_SERVICE_ACCOUNT_JSON 경로 또는 JSON 문자열이 지정된 경우 해당 정보 사용
+FIREBASE_KEY_PATH = os.getenv("FIREBASE_KEY_PATH", "serviceAccountKey.json")
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(FIREBASE_CONFIG)
-    firebase_admin.initialize_app(cred)
+    if os.path.exists(FIREBASE_KEY_PATH):
+        cred = credentials.Certificate(FIREBASE_KEY_PATH)
+        firebase_admin.initialize_app(cred)
+    else:
+        # 파일이 없을 시 기존 딕셔너리 구조 참조(환경 변수로 관리 권장)
+        FIREBASE_CONFIG = {
+            "type": "service_account",
+            "project_id": "chuli-game",
+            "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID", ""),
+            "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "").replace('\\n', '\n'),
+            "client_email": os.getenv("FIREBASE_CLIENT_EMAIL", ""),
+            "client_id": os.getenv("FIREBASE_CLIENT_ID", ""),
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "universe_domain": "googleapis.com"
+        }
+        cred = credentials.Certificate(FIREBASE_CONFIG)
+        firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
@@ -36,12 +41,9 @@ db = firestore.client()
 # 2. 시스템 기본 정보 및 API 설정
 # ==========================================
 CONFIG_URL = "https://raw.githubusercontent.com/damjun0804-cell/dodam_game/refs/heads/main/game_config.json"
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AQ.Ab8RN6L5Kt-myAILHI6q8IBy2bYvDl049W-e8PPlMHwacNobEA")
-SPOON_AUTH_TOKEN = os.getenv("SPOON_AUTH_TOKEN", "Bearer eyJraWQiOiJ3U2w3bm9kMHVSVDB0OVo3Y1d5ODJYUUxzU0FianM3SVFDckFkcmxUU21vIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOjU3Mzg0MzMsImRpZCI6Im1vemlsbGEvNS4wKHdpbmRvd3NudDEwLjA7d2luNjQ7eDY0KWFwcGxld2Via2l0LzUzNy4zNihraHRtbCxsaWtlZ2Vja28pY2hyb21lLzE1MC4wLjAuMHdoYWxlLzQuMzkuNDEwLjE0c2FmYXJpLzUzNy4zNiIsImNudHJ5Ijoia3IiLCJleHAiOjE3OTA3NjQzOTYsImdyYW50IjpbImF1dGgiXSwiaWF0IjoxNzkwNzQ5OTk2fQ.NAn3V6qyC8q5motgAw1wUNWcIbkYKyFWE-A8eHpf_o2qSDTxKlWJBxZ0xzgECR3cQpTuZ6qGc20ge2WCQ5naPZ6z4JYdl5ClLtmVRKH70zFnYQTnBHyIiKsoaWsUo8WR5ZSEIkLCp_udZ5G8wpQgswt6B8GUKgd0B04yjfuuvkowSSpfR8QPCHgZ9hyeJM8RQ19xs1t4AwAxTatkfb5LcqOfImlNDukOxSqlD729rtygANFUPE67JSe2arD8IgvCPgmutKk_5o7At1kFDPfjHq1uUb2HdP9LlZ_yh0hLY3GR3N2gPKN8sWF3poA7PVR8y4F7FB2kIFUbtr38VfzwQw")
-
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 SPOON_LIVE_IDS = ["6199801", "42961606"]
 
-# 신규 google.genai 클라이언트 생성
 ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 current_config = {}
@@ -79,25 +81,29 @@ def get_ranking() -> str:
         return "순위 데이터를 조회하는 중에 오류가 발생했습니다."
 
 # ==========================================
-# 4. GitHub Raw JSON 실시간 동기화
+# 4. GitHub Raw JSON 실시간 동기화 (비동기 스레드 동기화)
 # ==========================================
-def fetch_remote_config():
+def _fetch_remote_config_sync():
     global current_config
     try:
         req = urllib.request.Request(CONFIG_URL, headers={'User-Agent': 'Mozilla/5.0', 'Cache-Control': 'no-cache'})
         with urllib.request.urlopen(req) as response:
-            current_config = json.loads(response.read().decode('utf-8'))
+            data = json.loads(response.read().decode('utf-8'))
+            current_config = data
             print("[INFO] GitHub 설정 실시간 동기화 완료")
     except Exception as e:
         print(f"[ERROR] GitHub 설정 로드 실패: {e}")
 
+async def fetch_remote_config():
+    await asyncio.to_thread(_fetch_remote_config_sync)
+
 async def config_sync_loop():
     while True:
-        fetch_remote_config()
+        await fetch_remote_config()
         await asyncio.sleep(5)
 
 # ==========================================
-# 5. Gemini AI 답변 생성 (신규 API 호환)
+# 5. Gemini AI 답변 생성
 # ==========================================
 def generate_ai_response(user_name: str, message: str) -> str:
     target_word = current_config.get("target_word", "")
@@ -175,7 +181,7 @@ def process_incoming_message(user_name: str, message: str) -> str:
     return None
 
 # ==========================================
-# 7. 스푼라디오 웹소켓 핸들러 (자동 재연결 적용)
+# 7. 스푼라디오 웹소켓 핸들러
 # ==========================================
 async def connect_spoon_websocket(websocket_url, headers):
     try:
@@ -188,41 +194,61 @@ async def connect_spoon_websocket(websocket_url, headers):
 
 async def spoon_chat_handler(live_id: str):
     websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{live_id}/sockets/"
-    headers = {"Authorization": SPOON_AUTH_TOKEN, "User-Agent": "Mozilla/5.0"}
 
-    # 무한 루프로 자동 재연결 시도
     while True:
+        # GitHub 설정에서 최신 토큰 확인 -> 없으면 환경 변수 참조
+        token = current_config.get("spoon_auth_token") or os.getenv("SPOON_AUTH_TOKEN", "")
+        
+        if not token:
+            print(f"[WARNING] SPOON_AUTH_TOKEN이 설정되지 않았습니다. 대시보드에서 토큰을 저장하세요. (5초 후 재시도)")
+            await asyncio.sleep(5)
+            continue
+
+        headers = {
+            "Authorization": token,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+
         try:
-            print(f"[CONNECTING] 웹소켓 시도 중... (LIVE ID: {live_id})")
+            print(f"[CONNECTING] 웹소켓 연결 시도 중... (LIVE ID: {live_id})")
             ws = await connect_spoon_websocket(websocket_url, headers)
             async with ws:
                 print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {live_id})")
 
                 while True:
-                    raw_data = await ws.recv()
-                    data = json.loads(raw_data)
+                    # 토큰이 중간에 업데이트된 경우 연결 재설정을 위해 확인
+                    latest_token = current_config.get("spoon_auth_token") or os.getenv("SPOON_AUTH_TOKEN", "")
+                    if latest_token and latest_token != token:
+                        print(f"[INFO] SPOON_AUTH_TOKEN이 변경되었습니다. 웹소켓 재연결 진행 중...")
+                        break
 
-                    if data.get("event") == "live_message":
-                        user_name = data.get("user", {}).get("nickname", "시청자")
-                        message = data.get("message", "").strip()
+                    try:
+                        raw_data = await asyncio.wait_for(ws.recv(), timeout=1.0)
+                        data = json.loads(raw_data)
 
-                        reply = process_incoming_message(user_name, message)
-                        if reply:
-                            send_packet = {"action": "send_message", "message": reply}
-                            await ws.send(json.dumps(send_packet))
+                        if data.get("event") == "live_message":
+                            user_name = data.get("user", {}).get("nickname", "시청자")
+                            message = data.get("message", "").strip()
+
+                            reply = process_incoming_message(user_name, message)
+                            if reply:
+                                send_packet = {"action": "send_message", "message": reply}
+                                await ws.send(json.dumps(send_packet))
+                    except asyncio.TimeoutError:
+                        continue
 
         except (websockets.ConnectionClosed, OSError) as e:
-            print(f"[WARNING] 웹소켓 연결 끊김 (LIVE ID: {live_id}): {e}. 5초 후 재시도합니다.")
+            print(f"[WARNING] 웹소켓 연결 끊김 (LIVE ID: {live_id}): {e}. 5초 후 재연결합니다.")
             await asyncio.sleep(5)
         except Exception as e:
-            print(f"[ERROR] 웹소켓 오류 발생 (LIVE ID: {live_id}): {e}. 5초 후 재시도합니다.")
+            print(f"[ERROR] 웹소켓 오류 발생 (LIVE ID: {live_id}): {e}. 5초 후 재연결합니다.")
             await asyncio.sleep(5)
 
 # ==========================================
 # 8. 메인 실행 루프
 # ==========================================
 async def main_loop():
-    fetch_remote_config()
+    await fetch_remote_config()
     
     tasks = [config_sync_loop()]
     for live_id in SPOON_LIVE_IDS:
