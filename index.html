@@ -2,545 +2,142 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>추리 게임 관리자 대시보드</title>
+    <title>스푼라디오 봇 관리자 대시보드</title>
     <style>
         :root {
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --card-border: #e2e8f0;
-            --primary-color: #1e293b;
-            --accent-blue: #2563eb;
-            --accent-red: #ef4444;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-sub: #b0b0b0;
+            --accent: #ff5722;
+            --border: #333333;
         }
-
         body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            font-family: 'Apple SD Gothic Neo', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 30px 20px;
-        }
-
-        .container {
-            max-width: 850px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            padding: 35px;
-            border-radius: 16px;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .section {
-            margin-bottom: 25px;
             padding: 20px;
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            background-color: #fafafa;
-        }
-
-        .section-title {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            color: var(--primary-color);
             display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 8px;
+            justify-content: center;
         }
-
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h2 {
+            margin-top: 0;
+            color: var(--accent);
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
         label {
             display: block;
-            margin-top: 12px;
-            font-weight: 600;
-            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: bold;
             color: var(--text-sub);
         }
-
-        input[type="text"], input[type="password"], textarea {
+        input[type="text"], input[type="password"] {
             width: 100%;
             padding: 12px;
-            margin-top: 6px;
-            background-color: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
+            background: #2a2a2a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
             color: var(--text-main);
             box-sizing: border-box;
             font-size: 14px;
-            transition: all 0.2s ease;
         }
-
-        input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+        input:focus {
             outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--accent);
         }
-
-        textarea {
-            resize: vertical;
-            height: 90px;
-        }
-
-        .forbidden-input-group {
-            display: flex;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .forbidden-input-group input {
-            margin-top: 0;
-            flex: 1;
-        }
-
-        .btn-add {
-            padding: 0 18px;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-add:hover {
-            background: #334155;
-        }
-
-        .tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            min-height: 40px;
-            padding: 8px;
-            background: #ffffff;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-        }
-
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .tag .remove-btn {
-            margin-left: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            color: var(--accent-red);
-        }
-
-        .tag .remove-btn:hover {
-            color: #7f1d1d;
-        }
-
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 52px;
-            height: 28px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1;
-            transition: .3s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px; width: 20px;
-            left: 4px; bottom: 4px;
-            background-color: white;
-            transition: .3s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--accent-blue);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
-
-        .suspect-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .suspect-box {
-            background: #ffffff;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            border-left: 4px solid var(--accent-blue);
-            border-radius: 8px;
-        }
-
-        .suspect-title {
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 8px;
+        small {
             display: block;
+            margin-top: 6px;
+            color: var(--text-sub);
+            font-size: 12px;
         }
-
-        .suspect-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .suspect-inputs input {
-            margin-top: 0;
-        }
-
-        .btn-save {
+        button {
             width: 100%;
-            padding: 15px;
-            background: var(--accent-blue);
+            padding: 14px;
+            background-color: var(--accent);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 6px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.2s ease;
+            transition: background 0.2s;
         }
-
-        .btn-save:hover {
-            background: #1d4ed8;
+        button:hover {
+            background-color: #e64a19;
+        }
+        #status {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="🕵️‍♂️ 추리 게임 사건 관리 본부">
-    <meta property="og:description" content="스푼라디오 추리 게임 실시간 설정 및 용의자 관리 대시보드입니다.">
-    <meta property="og:image" content="https://damjun0804-cell.github.io/dodam_game/preview.jpg">
-    <meta property="og:url" content="https://damjun0804-cell.github.io/dodam_game/index.html">
 </head>
 <body>
-
-<div class="container">
-    <h1>🕵️‍♂️ 추리 게임 사건 관리 본부</h1>
-
-    <!-- GitHub 인증 및 인증 토큰 설정 섹션 -->
-    <div class="section">
-        <div class="section-title">🔑 인증 및 연결 설정</div>
+    <div class="container">
+        <h2>스푼라디오 봇 제어판</h2>
         
-        <label for="githubToken">GitHub Personal Access Token (classic)</label>
-        <input type="password" id="githubToken" placeholder="ghp_... 토큰을 입력하세요">
-        <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 토큰은 브라우저(localStorage)에 저장됩니다.</small>
-
-        <label for="spoonAuthToken" style="margin-top: 15px;">SPOON Auth Token (Bearer ...)</label>
-        <input type="password" id="spoonAuthToken" placeholder="Bearer eyJraW... 스푼 인증 토큰을 입력하세요">
-        <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 스푼라디오 웹 로그인 후 개발자 도구 Network 탭에서 추출한 Authorization 토큰을 입력하세요.</small>
-
-        <label for="liveUrl" style="margin-top: 15px;">스푼라디오 방송 웹소켓 주소 (Live URL)</label>
-        <input type="text" id="liveUrl" placeholder="예: wss://kr-live.spooncast.net/api/v2/lives/라이브ID/sockets/">
-        <small style="color: var(--text-sub); display: block; margin-top: 4px;">* 연결할 라이브 방송의 웹소켓 접속 주소를 입력하세요.</small>
-    </div>
-
-    <!-- 게임 활성화 상태 -->
-    <div class="section toggle-container">
-        <span class="section-title" style="margin-bottom:0; border:none;">🚨 사건 진행 상태 (ON/OFF)</span>
-        <label class="switch">
-            <input type="checkbox" id="isGameActive" checked>
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <!-- 기본 단어 및 규칙 설정 -->
-    <div class="section">
-        <div class="section-title">🎯 핵심 단어 및 가이드라인</div>
-        
-        <label for="targetWord">정답 단어 (Target Word)</label>
-        <input type="text" id="targetWord" placeholder="예: 시계">
-
-        <label>금지어 (Enter키 또는 추가 버튼으로 등록)</label>
-        <div class="forbidden-input-group">
-            <input type="text" id="forbiddenInput" placeholder="금지할 단어 입력 후 Enter">
-            <button class="btn-add" onclick="addForbiddenWord()">추가</button>
+        <div class="form-group">
+            <label for="broadcastId">방송 ID 또는 고유닉 (ID / Tag)</label>
+            <input type="text" id="broadcastId" placeholder="예: 방송 고유 ID 또는 주소의 ID 부분 입력">
+            <small>* 웹소켓 주소를 직접 넣을 필요 없이, 방송 ID나 고유닉만 입력하면 자동으로 연동됩니다.</small>
         </div>
-        <div class="tag-container" id="tagContainer"></div>
 
-        <label for="systemInstruction" style="margin-top: 15px;">AI 행동 지침 (Prompt Instruction)</label>
-        <textarea id="systemInstruction" placeholder="미입력 시 기본 가이드라인이 적용됩니다: 시청자 질문에 성격을 연기하며 단답으로 응답하세요."></textarea>
-    </div>
-
-    <!-- 용의자 프로필 설정 -->
-    <div class="section">
-        <div class="section-title">👥 용의자 프로필 설정 (5인)</div>
-        <div class="suspect-grid">
-            <script>
-                const defaultPlaceholders = [
-                    { name: "김경비", personality: "침착함, 의심 많음", alibi: "사건 시각 순찰 중이었음", secret: "열쇠를 분실했었음" },
-                    { name: "이비서", personality: "꼼꼼함, 예민함", alibi: "서재에서 문서 정리를 하고 있었음", secret: "최근 금전적 어려움이 있음" },
-                    { name: "박정원사", personality: "소심함, 정직함", alibi: "온실에서 화분을 가꾸고 있었음", secret: "피해자와 말다툼을 함" },
-                    { name: "최메이드", personality: "밝음, 눈치가 빠름", alibi: "주방에서 차를 준비하고 있었음", secret: "몰래 비밀 통로를 알고 있음" },
-                    { name: "정손님", personality: "당당함, 차가움", alibi: "응접실에서 차를 마시고 있었음", secret: "피해자에게 빌려준 돈이 있음" }
-                ];
-
-                for(let i=1; i<=5; i++) {
-                    const p = defaultPlaceholders[i-1];
-                    document.write(`
-                        <div class="suspect-box">
-                            <span class="suspect-title">용의자 ${i}</span>
-                            <div class="suspect-inputs">
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">이름</span>
-                                    <input type="text" id="suspect${i}Name" placeholder="예: ${p.name}">
-                                </div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">성격</span>
-                                    <input type="text" id="suspect${i}Personality" placeholder="예: ${p.personality}">
-                                </div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">알리바이</span>
-                                    <input type="text" id="suspect${i}Alibi" placeholder="예: ${p.alibi}">
-                                </div>
-                                <div style="display: flex; flex-direction: column;">
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: 4px;">비밀</span>
-                                    <input type="text" id="suspect${i}Secret" placeholder="예: ${p.secret}">
-                                </div>
-                            </div>
-                        </div>
-                    `);
-                }
-            </script>
+        <div class="form-group">
+            <label for="token">스푼 인증 토큰 (Token)</label>
+            <input type="password" id="token" placeholder="Bearer 토큰 값 입력">
+            <small>* API 호출 및 웹소켓 인증에 사용되는 토큰입니다.</small>
         </div>
+
+        <button onclick="saveConfig()">설정 저장 및 봇 시작</button>
+        <div id="status"></div>
     </div>
 
-    <button class="btn-save" onclick="saveConfig()">💾 데이터 저장 및 적용</button>
-</div>
+    <script>
+        async function saveConfig() {
+            const broadcastId = document.getElementById('broadcastId').value.trim();
+            const token = document.getElementById('token').value.trim();
+            const statusDiv = document.getElementById('status');
 
-<script>
-    const REPO_OWNER = "damjun0804-cell";
-    const REPO_NAME = "dodam_game";
-    const FILE_PATH = "game_config.json";
-
-    const DEFAULT_SYSTEM_INSTRUCTION = "당신은 사건 현장의 탐정 및 용의자 역할을 맡아 시청자의 질문에 유용한 힌트를 제공하거나 성격에 맞춰 연기해야 합니다. 정답과 금지어는 절대로 직접 언급하지 마세요.";
-    
-    const DEFAULT_SUSPECTS = {
-        "1": { name: "김경비", personality: "침착함", alibi: "사건 시각 순찰 중이었음", secret: "열쇠를 분실했었음" },
-        "2": { name: "이비서", personality: "꼼꼼함", alibi: "서재에서 문서 정리를 하고 있었음", secret: "최근 금전적 어려움이 있음" },
-        "3": { name: "박정원사", personality: "소심함", alibi: "온실에서 화분을 가꾸고 있었음", secret: "피해자와 말다툼을 함" },
-        "4": { name: "최메이드", personality: "밝음", alibi: "주방에서 차를 준비하고 있었음", secret: "몰래 비밀 통로를 알고 있음" },
-        "5": { name: "정손님", personality: "당당함", alibi: "응접실에서 차를 마시고 있었음", secret: "피해자에게 빌려준 돈이 있음" }
-    };
-
-    let forbiddenWordsList = [];
-
-    const forbiddenInput = document.getElementById("forbiddenInput");
-    forbiddenInput.addEventListener("keypress", function(e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            addForbiddenWord();
-        }
-    });
-
-    function addForbiddenWord() {
-        const val = forbiddenInput.value.trim();
-        if (val && !forbiddenWordsList.includes(val)) {
-            forbiddenWordsList.push(val);
-            renderTags();
-            forbiddenInput.value = "";
-        }
-    }
-
-    function removeForbiddenWord(word) {
-        forbiddenWordsList = forbiddenWordsList.filter(item => item !== word);
-        renderTags();
-    }
-
-    function renderTags() {
-        const container = document.getElementById("tagContainer");
-        container.innerHTML = "";
-        forbiddenWordsList.forEach(word => {
-            const tag = document.createElement("div");
-            tag.className = "tag";
-            tag.innerHTML = `${word} <span class="remove-btn" onclick="removeForbiddenWord('${word}')">&times;</span>`;
-            container.appendChild(tag);
-        });
-    }
-
-    window.onload = async function() {
-        const savedGithubToken = localStorage.getItem("dodam_github_token");
-        if (savedGithubToken) {
-            document.getElementById("githubToken").value = savedGithubToken;
-            loadRemoteConfig(savedGithubToken);
-        }
-    };
-
-    async function loadRemoteConfig(token) {
-        try {
-            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: {
-                    "Authorization": `token ${token}`,
-                    "Accept": "application/vnd.github.v3+json"
-                }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                const content = decodeURIComponent(escape(atob(data.content)));
-                const config = JSON.parse(content);
-
-                document.getElementById("isGameActive").checked = (config.is_game_active !== undefined) ? config.is_game_active : true;
-                document.getElementById("spoonAuthToken").value = config.spoon_auth_token || "";
-                document.getElementById("liveUrl").value = config.live_url || "";
-                document.getElementById("targetWord").value = config.target_word || "";
-                document.getElementById("systemInstruction").value = config.system_instruction || "";
-
-                forbiddenWordsList = config.forbidden_words || [];
-                renderTags();
-
-                if (config.suspects) {
-                    for (let i = 1; i <= 5; i++) {
-                        const key = String(i);
-                        if (config.suspects[key]) {
-                            document.getElementById(`suspect${i}Name`).value = config.suspects[key].name || "";
-                            document.getElementById(`suspect${i}Personality`).value = config.suspects[key].personality || "";
-                            document.getElementById(`suspect${i}Alibi`).value = config.suspects[key].alibi || "";
-                            document.getElementById(`suspect${i}Secret`).value = config.suspects[key].secret || "";
-                        }
-                    }
-                }
-            }
-        } catch (err) {
-            console.error("설정 데이터 불러오기 실패:", err);
-        }
-    }
-
-    async function saveConfig() {
-        const githubToken = document.getElementById("githubToken").value.trim();
-        const spoonAuthToken = document.getElementById("spoonAuthToken").value.trim();
-        const liveUrl = document.getElementById("liveUrl").value.trim();
-
-        if (!githubToken) {
-            alert("GitHub Personal Access Token을 입력해주세요!");
-            return;
-        }
-
-        localStorage.setItem("dodam_github_token", githubToken);
-
-        const instructionVal = document.getElementById("systemInstruction").value.trim();
-        const finalInstruction = instructionVal !== "" ? instructionVal : DEFAULT_SYSTEM_INSTRUCTION;
-
-        const suspectsObj = {};
-        for (let i = 1; i <= 5; i++) {
-            const key = String(i);
-            const nameVal = document.getElementById(`suspect${i}Name`).value.trim();
-            const personalityVal = document.getElementById(`suspect${i}Personality`).value.trim();
-            const alibiVal = document.getElementById(`suspect${i}Alibi`).value.trim();
-            const secretVal = document.getElementById(`suspect${i}Secret`).value.trim();
-
-            suspectsObj[key] = {
-                name: nameVal !== "" ? nameVal : DEFAULT_SUSPECTS[key].name,
-                personality: personalityVal !== "" ? personalityVal : DEFAULT_SUSPECTS[key].personality,
-                alibi: alibiVal !== "" ? alibiVal : DEFAULT_SUSPECTS[key].alibi,
-                secret: secretVal !== "" ? secretVal : DEFAULT_SUSPECTS[key].secret
-            };
-        }
-
-        const updatedConfig = {
-            is_game_active: document.getElementById("isGameActive").checked,
-            spoon_auth_token: spoonAuthToken,
-            live_url: liveUrl,
-            target_word: document.getElementById("targetWord").value.trim(),
-            forbidden_words: forbiddenWordsList,
-            system_instruction: finalInstruction,
-            suspects: suspectsObj
-        };
-
-        try {
-            const getRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: {
-                    "Authorization": `token ${githubToken}`,
-                    "Accept": "application/vnd.github.v3+json"
-                }
-            });
-
-            if (getRes.status === 401) {
-                alert("인증 실패 (401 Unauthorized). GitHub 토큰 권한(repo) 및 스펠링을 재확인하세요.");
+            if (!broadcastId || !token) {
+                statusDiv.style.color = '#ff5252';
+                statusDiv.innerText = '방송 ID와 토큰을 모두 입력해주세요.';
                 return;
             }
 
-            let sha = "";
-            if (getRes.ok) {
-                const getData = await getRes.json();
-                sha = getData.sha;
+            try {
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ broadcast_id: broadcastId, token: token })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    statusDiv.style.color = '#4caf50';
+                    statusDiv.innerText = '설정이 저장되고 봇이 성공적으로 실행되었습니다!';
+                } else {
+                    statusDiv.style.color = '#ff5252';
+                    statusDiv.innerText = '설정 저장 실패: ' + (result.message || '알 수 없는 오류');
+                }
+            } catch (error) {
+                statusDiv.style.color = '#ff5252';
+                statusDiv.innerText = '서버 통신 중 오류가 발생했습니다.';
             }
-
-            const encodedContent = btoa(unescape(encodeURIComponent(JSON.stringify(updatedConfig, null, 2))));
-
-            const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                method: "PUT",
-                headers: {
-                    "Authorization": `token ${githubToken}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: "Update game config including live_url and token",
-                    content: encodedContent,
-                    sha: sha
-                })
-            });
-
-            if (putRes.ok) {
-                alert("✅ 설정, 토큰 및 방송 링크가 정상적으로 저장되었습니다!");
-            } else {
-                const errorData = await putRes.json();
-                alert("저장 실패: " + (errorData.message || putRes.statusText));
-            }
-        } catch (err) {
-            console.error("저장 오류:", err);
-            alert("저장 처리 중 오류 발생: " + err.message);
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
