@@ -1,26 +1,38 @@
 {
-  "is_game_active": false,
+  "is_game_active": true,
   "target_word": "",
   "forbidden_words": [],
-  "system_instruction": "",
+  "system_instruction": "당신은 사건 현장의 탐정 및 용의자 역할을 맡아 시청자의 질문에 유용한 힌트를 제공하거나 성격에 맞춰 연기해야 합니다. 정답과 금지어는 절대로 직접 언급하지 마세요.",
   "suspects": {
     "1": {
-      "name": "",
-      "personality": "",
-      "alibi": "",
-      "secret": ""
+      "name": "김경비",
+      "personality": "침착함",
+      "alibi": "사건 시각 순찰 중이었음",
+      "secret": "열쇠를 분실했었음"
     },
     "2": {
-      "name": "",
-      "personality": "",
-      "alibi": "",
-      "secret": ""
+      "name": "이비서",
+      "personality": "꼼꼼함",
+      "alibi": "서재에서 문서 정리를 하고 있었음",
+      "secret": "최근 금전적 어려움이 있음"
     },
     "3": {
-      "name": "",
-      "personality": "",
-      "alibi": "",
-      "secret": ""
+      "name": "박정원사",
+      "personality": "소심함",
+      "alibi": "온실에서 화분을 가꾸고 있었음",
+      "secret": "피해자와 말다툼을 함"
+    },
+    "4": {
+      "name": "최메이드",
+      "personality": "밝음",
+      "alibi": "주방에서 차를 준비하고 있었음",
+      "secret": "몰래 비밀 통로를 알고 있음"
+    },
+    "5": {
+      "name": "정손님",
+      "personality": "당당함",
+      "alibi": "응접실에서 차를 마시고 있었음",
+      "secret": "피해자에게 빌려준 돈이 있음"
     }
   }
 }
