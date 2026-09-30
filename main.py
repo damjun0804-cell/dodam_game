@@ -25,7 +25,6 @@ FIREBASE_CONFIG = {
     "universe_domain": "googleapis.com"
 }
 
-# Firestore 앱 초기화
 if not firebase_admin._apps:
     cred = credentials.Certificate(FIREBASE_CONFIG)
     firebase_admin.initialize_app(cred)
@@ -49,7 +48,6 @@ current_config = {}
 # 3. Firestore 데이터베이스 처리
 # ==========================================
 def record_correct_answer(user_nickname: str):
-    """정답자의 점수(성공 횟수)를 Firestore 'scores' 컬렉션에 누적 처리"""
     try:
         doc_ref = db.collection("scores").document(user_nickname)
         doc = doc_ref.get()
@@ -63,7 +61,6 @@ def record_correct_answer(user_nickname: str):
         print(f"[DB ERROR] 점수 저장 실패: {e}")
 
 def get_ranking() -> str:
-    """Firestore 'scores' 컬렉션에서 상위 정답자 순위를 가져와 문자열 생성"""
     try:
         docs = db.collection("scores").order_by("score", direction=firestore.Query.DESCENDING).limit(10).stream()
         rank_list = [(doc.id, doc.to_dict().get("score", 0)) for doc in docs]
@@ -145,23 +142,19 @@ def generate_ai_response(user_name: str, message: str) -> str:
 def process_incoming_message(user_name: str, message: str) -> str:
     text = message.strip()
 
-    # 1. '!순위' 명령어
     if text == "!순위":
         return get_ranking()
 
-    # 2. 게임 진행 상태 확인 (일시 정지 시 무시)
     if not current_config.get("is_game_active", False):
         return None
 
     target_word = current_config.get("target_word", "").strip()
 
-    # 3. '!정답 [단어]' 판정 로직
     if text.startswith("!정답"):
         user_answer = text[3:].strip()
         if not user_answer:
             return f"@{user_name}님, '!정답 [단어]' 입력 형식으로 제출해 주세요!"
 
-        # 공백 및 대소문자 무시 정답 판정
         if user_answer.replace(" ", "").lower() == target_word.replace(" ", "").lower():
             record_correct_answer(user_name)
             current_config["is_game_active"] = False
@@ -169,7 +162,6 @@ def process_incoming_message(user_name: str, message: str) -> str:
         else:
             return f"❌ @{user_name}님, 오답입니다! 다시 추리해보세요."
 
-    # 4. 일반 AI 질문 처리 ('!'로 시작하는 경우)
     if text.startswith("!"):
         query = text[1:].strip()
         ai_reply = generate_ai_response(user_name, query)
@@ -184,28 +176,55 @@ async def spoon_chat_handler():
     websocket_url = f"wss://kor-live.spooncast.net/api/v2/lives/{SPOON_LIVE_ID}/sockets/"
     headers = {"Authorization": SPOON_AUTH_TOKEN, "User-Agent": "Mozilla/5.0"}
 
-    async with websockets.connect(websocket_url, extra_headers=headers) as ws:
-        print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
+    # websockets 패키지 호환성을 위한 구/신버전 파라미터 처리
+    connect_kwargs = {"headers": headers}
+    try:
+        async with websockets.connect(websocket_url, **connect_kwargs) as ws:
+            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
 
-        while True:
-            try:
-                raw_data = await ws.recv()
-                data = json.loads(raw_data)
+            while True:
+                try:
+                    raw_data = await ws.recv()
+                    data = json.loads(raw_data)
 
-                if data.get("event") == "live_message":
-                    user_name = data.get("user", {}).get("nickname", "시청자")
-                    message = data.get("message", "").strip()
+                    if data.get("event") == "live_message":
+                        user_name = data.get("user", {}).get("nickname", "시청자")
+                        message = data.get("message", "").strip()
 
-                    reply = process_incoming_message(user_name, message)
-                    if reply:
-                        send_packet = {"action": "send_message", "message": reply}
-                        await ws.send(json.dumps(send_packet))
+                        reply = process_incoming_message(user_name, message)
+                        if reply:
+                            send_packet = {"action": "send_message", "message": reply}
+                            await ws.send(json.dumps(send_packet))
 
-            except websockets.ConnectionClosed:
-                print("[WARNING] 웹소켓 연결이 종료되었습니다.")
-                break
-            except Exception as e:
-                print(f"[ERROR] 메시지 처리 오류: {e}")
+                except websockets.ConnectionClosed:
+                    print("[WARNING] 웹소켓 연결이 종료되었습니다.")
+                    break
+                except Exception as e:
+                    print(f"[ERROR] 메시지 처리 오류: {e}")
+    except TypeError:
+        # 구버전 websockets 호환 처리 (extra_headers)
+        async with websockets.connect(websocket_url, extra_headers=headers) as ws:
+            print(f"[SUCCESS] 스푼라디오 라이브 웹소켓 연결 완료 (LIVE ID: {SPOON_LIVE_ID})")
+
+            while True:
+                try:
+                    raw_data = await ws.recv()
+                    data = json.loads(raw_data)
+
+                    if data.get("event") == "live_message":
+                        user_name = data.get("user", {}).get("nickname", "시청자")
+                        message = data.get("message", "").strip()
+
+                        reply = process_incoming_message(user_name, message)
+                        if reply:
+                            send_packet = {"action": "send_message", "message": reply}
+                            await ws.send(json.dumps(send_packet))
+
+                except websockets.ConnectionClosed:
+                    print("[WARNING] 웹소켓 연결이 종료되었습니다.")
+                    break
+                except Exception as e:
+                    print(f"[ERROR] 메시지 처리 오류: {e}")
 
 # ==========================================
 # 8. 메인 실행 루프
