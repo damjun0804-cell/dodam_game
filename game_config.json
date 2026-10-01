@@ -4,7 +4,7 @@
   "forbidden_words": [
     "고양이외계인"
   ],
-  "system_instruction": "대답할 때 [용의자 이름] 을 맨 앞에 붙여줘",
+  "system_instruction": "대답할 때 [용의자 이름] 을 맨 앞에 붙여줘\n사건 발생 시간은 21시로 추정",
   "suspects": {
     "1": {
       "name": "시아",
